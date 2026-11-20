@@ -276,6 +276,7 @@ window.addEventListener('unhandledrejection',function(e){toast('오류: '+((e.re
 
 function entryBlank(){return {attended:false,checkInAt:null,sleepH:'',recovery:0,minutes:'',kcal:0,rpe:0,topGrade:'',sends:'',weight:'',pain:[],coach:'',items:{},cond:{},notes:'',confirmedAt:null,adminEditedAt:null,updatedAt:0}}
 function hasItems(e){for(var k in (e&&e.items)||{})return true;return false}
+function needsConfirm(e){if(!e||e.confirmedAt)return false;return !!(hasItems(e)||e.notes||e.sleepH||e.topGrade||(e.attended&&!e.official))}
 function hasLog(e){if(!e)return false;if(e.attended||hasItems(e))return true;return !!(e.notes||e.sleepH||e.topGrade||e.coach)}
 function lastWeight(date){var best=null;Object.keys(S.days||{}).sort().forEach(function(k){if(k<=date&&+S.days[k].weight)best=+S.days[k].weight});return best}
 function calcDay(d,date){var w=+d.weight||lastWeight(date)||65;var min=0,kc=0;ITEMS.forEach(function(it){var v=(d.items||{})[it[0]];if(v){var m=+v.min||0;min+=m;kc+=it[2]*w*m/60}});return {min:min,kcal:Math.round(kc),w:w,est:!(+d.weight)}}
@@ -327,6 +328,7 @@ function monthDates(ym){var p=ym.split('-');var y=+p[0],m=+p[1]-1;var n=new Date
 function shiftMonth(ym,k){var p=ym.split('-');var d=new Date(+p[0],+p[1]-1+k,1);return d.getFullYear()+'-'+pad(d.getMonth()+1)}
 function monthLabel(ym){var p=ym.split('-');return p[0]+'년 '+(+p[1])+'월'}
 function countMonth(map,ym){var n=0;for(var k in map){if(k.indexOf(ym)===0&&map[k].attended)n++}return n}
+function attRate(map,ym){var n=0;for(var k in map){if(k.indexOf(ym)===0&&map[k].attended)n++}var el=(ym===TODAY.slice(0,7))?(+TODAY.slice(8)):monthDates(ym).length;return Math.min(100,Math.round(n/Math.max(1,el)*100))}
 function monthKcal(map){var m=0;for(var k in map){if(k.indexOf(S.month)===0)m+=(+map[k].kcal||0)}return m}
 function shiftDay(s,k){var d=parse(s);d.setDate(d.getDate()+k);return ymd(d)}
 function dayNav(ds,p,n){return '<div class="dnav"><button data-act="'+p+'" aria-label="전날">‹</button><div><b>'+pretty(ds)+'</b>'+(ds===TODAY?' <span class="pill acc">오늘</span>':'')+'</div><button data-act="'+n+'" aria-label="다음날"'+(ds>=TODAY?' disabled':'')+'>›</button></div>'}
@@ -357,7 +359,7 @@ function calendarHtml(map){
   return h+'</div>';
 }
 function statsHtml(map){
-  return '<div class="stats"><div class="stat"><b>'+countMonth(map,S.month)+'</b><span>이번 달 출석</span></div>'+
+  return '<div class="stats"><div class="stat"><b>'+countMonth(map,S.month)+'</b><span>이번 달 출석 · 출석률 '+attRate(map,S.month)+'%</span></div>'+
    '<div class="stat"><b>'+streak(map)+'</b><span>연속 출석(일)</span></div>'+
    '<div class="stat"><b>'+monthKcal(map).toLocaleString('ko-KR')+'</b><span>이번 달 소모 kcal(추정)</span></div></div>';
 }
@@ -365,14 +367,14 @@ function statusHtml(){
   var d=S.draft;if(!d)return '';
   if(d.confirmedAt)return '<div class="banner ok">✓ 본인 확인 완료 · '+new Date(d.confirmedAt).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+'</div>';
   if(d.adminEditedAt)return '<div class="banner">관리자가 내용을 수정했어요. 내용을 확인하고 본인 확인을 눌러 주세요.</div>';
-  return hasLog(d)?'<div class="banner">아직 본인 확인 전이에요. 아래에서 확인을 눌러 마무리하세요.</div>':'';
+  return needsConfirm(d)?'<div class="banner">아직 본인 확인 전이에요. 아래에서 확인을 눌러 마무리하세요.</div>':'';
 }
 function editorHtml(){
   ensureDraft();var d=S.draft;d.items=d.items||{};d.grades=d.grades||{};var role=activeRole();var admin=role==='admin'&&viewUid()!==S.uid;
   var h='<div id="editor">';
   h+='<div class="card"><div class="attend"><div><div class="sub">'+pretty(S.date)+'</div><div class="big">'+(d.attended?'출석 완료':'출석 전')+'</div>'+
     (d.attended&&d.checkInAt?'<div class="sub">'+new Date(d.checkInAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})+' 체크</div>':'')+'</div>'+
-    '<button class="btn sm '+(d.attended?'ghost':'acc')+'" data-act="attend">'+(d.attended?'출석 취소':'출석 체크')+'</button></div>'+
+    (d.official?'<span class="pill ok">센터 출석 확인</span>':'<button class="btn sm '+(d.attended?'ghost':'acc')+'" data-act="attend">'+(d.attended?'출석 취소':'출석 체크')+'</button>')+'</div>'+
     (d.attended&&!admin&&(S.postedDay!==S.date||S.brag)?'<div class="qr" style="margin:12px 0 0">'+(S.postedDay!==S.date?'<button data-act="hello">채팅방에 출석 인사 남기기</button>':'')+(S.brag?'<button data-act="brag">'+S.brag+' 자랑하기</button>':'')+'</div>':'')+'</div>';
   var grp='';
   h+='<div class="card"><h3>오늘 한 운동 <span class="pill">눌러서 선택</span></h3>';
@@ -409,7 +411,7 @@ function viewLogin(){
   var adm=S.loginMode==='admin';
   var h='<div class="center"><img class="hero" alt="掌握" src="'+HERO+'"><div class="brand" style="font-size:22px;margin-top:6px">GRABON</div>';
   if(!adm){
-    h+='<h2 style="margin-top:24px">회원 로그인</h2><div class="card"><label class="sub" for="l-num">회원번호</label><input id="l-num" type="text" inputmode="text" autocomplete="username" style="margin:6px 0 12px">'+
+    h+='<h2 style="margin-top:24px">회원 로그인</h2><div class="card"><label class="sub" for="l-num">회원번호</label><input id="l-num" type="text" inputmode="text" placeholder="회원관리 프로그램의 회원번호" autocomplete="username" style="margin:6px 0 12px">'+
       '<label class="sub" for="l-name">이름 <span class="pill">처음 로그인할 때만</span></label><input id="l-name" type="text" autocomplete="name" style="margin:6px 0 12px">'+
       '<label class="sub" for="l-pin">PIN (숫자 4~6자리) <span class="pill">처음이면 새로 정하세요</span></label><input id="l-pin" type="password" inputmode="numeric" maxlength="6" autocomplete="current-password" style="margin:6px 0 14px">'+
       '<button class="btn acc" data-act="login">로그인</button></div><p class="sub"><a href="#" data-act="adminmode" style="color:var(--accent)">관리자 로그인</a></p>';
@@ -426,30 +428,31 @@ function viewHistory(title){
 function viewMine(){return '<h2>내 일지</h2><div class="sub">관리자 본인의 운동 기록이에요.</div>'+statsHtml(S.days)+'<div class="card">'+calendarHtml(S.days)+'</div><div class="sub" style="margin-top:14px">'+pretty(S.date)+' 기록</div>'+editorHtml()}
 function daysAgo(ds){return Math.round((parse(TODAY)-parse(ds))/86400000)}
 function lastAtt(map){var ks=Object.keys(map||{}).filter(function(k){return map[k].attended}).sort();return ks.length?ks[ks.length-1]:null}
-function memSub(id){var map=matrixCache[id]||{};var la=lastAtt(map);var un=Object.keys(map).filter(function(k){return hasLog(map[k])&&!map[k].confirmedAt}).length;
-  return '이번 달 '+countMonth(map,TODAY.slice(0,7))+'회 · '+(la?(daysAgo(la)===0?'오늘 출석':'마지막 출석 '+daysAgo(la)+'일 전'):'출석 기록 없음')+(un?' · 미확인 '+un:'')}
+function memSub(id){var map=matrixCache[id]||{};var la=lastAtt(map);var un=Object.keys(map).filter(function(k){return needsConfirm(map[k])}).length;
+  return '이번 달 '+countMonth(map,TODAY.slice(0,7))+'회 · 출석률 '+attRate(map,TODAY.slice(0,7))+'% · '+(la?(daysAgo(la)===0?'오늘 출석':'마지막 출석 '+daysAgo(la)+'일 전'):'출석 기록 없음')+(un?' · 미확인 '+un:'')}
 function memFilter(m){var map=matrixCache[m.id]||{};var la=lastAtt(map);var f=S.mf;
-  if(S.msearch&&(m.name+' '+m.id).toLowerCase().indexOf(S.msearch.toLowerCase())<0)return false;
+  if(S.msearch&&(m.name+' '+(m.no||'')).toLowerCase().indexOf(S.msearch.toLowerCase())<0)return false;
   if(f==='today')return !!(map[TODAY]&&map[TODAY].attended);
   if(f==='inactive')return !la||daysAgo(la)>=7;
-  if(f==='unconf')return Object.keys(map).some(function(k){return hasLog(map[k])&&!map[k].confirmedAt});
+  if(f==='unconf')return Object.keys(map).some(function(k){return needsConfirm(map[k])});
   return true}
 function memListHtml(){var l=S.roster.filter(memFilter).sort(function(a,b){return a.name.localeCompare(b.name,'ko')});
   if(!l.length)return '<p class="sub" style="margin-top:12px">'+(S.roster.length?'조건에 맞는 회원이 없어요.':'아직 등록한 회원이 없어요. 아래에서 회원번호와 이름을 등록하세요.')+'</p>';
-  return l.map(function(m){return '<button class="mem" data-mem="'+esc(m.id)+'"><span class="av">'+esc(m.name.charAt(0))+'</span><span class="t"><b>'+esc(m.name)+' <span class="sub">#'+esc(m.id)+'</span>'+(m.claimed?'':' <span class="pill warn">첫 로그인 전</span>')+'</b><span id="ms-'+esc(m.id)+'">'+esc(memSub(m.id))+'</span></span><span>›</span></button>'}).join('')}
+  return l.map(function(m){return '<button class="mem" data-mem="'+esc(m.id)+'"><span class="av">'+esc(m.name.charAt(0))+'</span><span class="t"><b>'+esc(m.name)+' <span class="sub">#'+esc(m.no||'')+(m.center?' · '+esc(m.center):'')+'</span>'+(m.claimed?'':' <span class="pill warn">첫 로그인 전</span>')+'</b><span id="ms-'+esc(m.id)+'">'+esc(memSub(m.id))+'</span></span><span>›</span></button>'}).join('')}
+function avgRate(){var ym=TODAY.slice(0,7),sum=0,n=0;S.roster.forEach(function(m){var map=matrixCache[m.id]||{};if(countMonth(map,ym)>0){sum+=attRate(map,ym);n++}});return n?Math.round(sum/n):0}
 function viewMembers(){
-  var tc=0,ic=0,uc=0;S.roster.forEach(function(m){var map=matrixCache[m.id]||{};var la=lastAtt(map);if(map[TODAY]&&map[TODAY].attended)tc++;if(!la||daysAgo(la)>=7)ic++;if(Object.keys(map).some(function(k){return hasLog(map[k])&&!map[k].confirmedAt}))uc++});
+  var tc=0,ic=0,uc=0;S.roster.forEach(function(m){var map=matrixCache[m.id]||{};var la=lastAtt(map);if(map[TODAY]&&map[TODAY].attended)tc++;if(!la||daysAgo(la)>=7)ic++;if(Object.keys(map).some(function(k){return needsConfirm(map[k])}))uc++});
   var F=function(k,l){return '<button data-mf="'+k+'" aria-pressed="'+(S.mf===k)+'">'+l+'</button>'};
-  var h='<h2>회원 관리</h2>'+noticeHtml()+'<div class="stats"><div class="stat"><b>'+tc+'</b><span>오늘 출석</span></div><div class="stat"><b>'+ic+'</b><span>7일 이상 미출석</span></div><div class="stat"><b>'+uc+'</b><span>본인 확인 대기</span></div></div>'+
+  var h='<h2>회원 관리</h2>'+noticeHtml()+'<div class="stats" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div class="stat"><b>'+tc+'</b><span>오늘 출석</span></div><div class="stat"><b>'+avgRate()+'%</b><span>평균 출석률(이번 달 출석 회원)</span></div><div class="stat"><b>'+ic+'</b><span>7일 이상 미출석</span></div><div class="stat"><b>'+uc+'</b><span>본인 확인 대기</span></div></div>'+
    '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn acc sm" data-act="newnotice" style="flex:1">공지 올리기</button></div><input id="m-search" type="text" placeholder="이름 또는 회원번호 검색" value="'+esc(S.msearch)+'" style="margin-top:12px"><div class="filt">'+F('all','전체 '+S.roster.length)+F('today','오늘 출석')+F('inactive','7일 미출석')+F('unconf','확인 대기')+'</div><div id="mlist">'+memListHtml()+'</div>';
-  h+='<div class="card"><h3>회원 등록</h3><label class="sub" for="a-bulk">한 줄에 한 명씩 &quot;회원번호 이름&quot;</label><textarea id="a-bulk" placeholder="15-001 김민준&#10;15-002 이서연" style="margin:6px 0 10px"></textarea><button class="btn acc" data-act="addmem">등록</button><p class="sub" style="margin:10px 0 0">회원은 번호와 이름으로 처음 로그인하면서 자기 PIN을 정해요.</p></div>';
+  h+='<div class="card"><h3>회원 등록</h3><p class="sub" style="margin:0">회원은 <b>그랩온 회원관리 프로그램</b>에서만 등록하세요. 등록하면 이 앱에 자동으로 나타나요. 회원은 프로그램의 회원번호와 이름으로 처음 로그인하면서 PIN을 정합니다.</p></div>';
   return h;
 }
 function viewMember(){
   var m=S.roster.filter(function(x){return x.id===S.target})[0]||{name:'회원'};
   return '<button class="btn ghost sm" data-act="back">‹ 회원 목록</button><h2>'+esc(m.name)+'</h2>'+statsHtml(S.days)+weekChart(S.days)+
    '<div class="card">'+calendarHtml(S.days)+'</div>'+dayNav(S.date,'dprev','dnext')+'<div class="sub" style="margin-top:10px">관리자 수정 가능</div>'+editorHtml()+
-   '<div class="card"><h3>회원 정보 관리 <span class="pill">#'+esc(S.target)+'</span></h3><label class="sub" for="e-name">이름</label><input id="e-name" type="text" value="'+esc(m.name)+'" style="margin:6px 0 10px"><div style="display:grid;gap:8px"><button class="btn ghost" data-act="rename">이름 저장</button><button class="btn ghost" data-act="resetpin">PIN 초기화 (다시 정하게 하기)</button><button class="btn ghost" data-act="delmem">'+(S.confirmDel?'정말 삭제할까요? 기록도 모두 사라져요 · 한 번 더 누르면 삭제':'회원 삭제')+'</button></div></div>';
+   '<div class="card"><h3>회원 정보 관리 <span class="pill">#'+esc(m.no||'')+'</span></h3><p class="sub" style="margin:0 0 10px">이름, 센터, 회원 정보는 그랩온 회원관리 프로그램에서 바꿔요.</p><div style="display:grid;gap:8px"><button class="btn ghost" data-act="resetpin">PIN 초기화 (다시 정하게 하기)</button></div></div>';
 }
 var matrixCache={};var matrixUnsubs=[];
 function viewDay(){
@@ -458,9 +461,9 @@ function viewDay(){
   rows.sort(function(a,b){var x=(a.e&&a.e.attended?0:1)-(b.e&&b.e.attended?0:1);return x||a.m.name.localeCompare(b.m.name,'ko')});
   var h='<h2>일간 현황</h2>'+dayNav(ds,'adayprev','adaynext')+'<div class="stats" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div class="stat"><b>'+att+'</b><span>출석</span></div><div class="stat"><b>'+S.roster.length+'</b><span>전체 회원</span></div><div class="stat"><b>'+kc.toLocaleString('ko-KR')+'</b><span>합계 kcal(추정)</span></div></div>';
   if(!rows.length)h+='<div class="card"><p class="sub" style="margin:0">회원 탭에서 먼저 회원을 등록하세요.</p></div>';
-  rows.forEach(function(r){var e=r.e;var has=e&&hasLog(e);
-    var det=e?[(e.attended?'출석':'기록만'),(+e.minutes?e.minutes+'분':''),(+e.kcal?e.kcal+'kcal':''),(e.topGrade||'')].filter(Boolean).join(' · '):'기록 없음';
-    h+='<div class="memrow"><button class="mem" data-memday="'+esc(r.m.id)+'"><span class="av" style="'+(e&&e.attended?'':'background:var(--soft);color:var(--mute)')+'">'+esc(r.m.name.charAt(0))+'</span><span class="t"><b>'+esc(r.m.name)+'</b><span>'+esc(det)+'</span></span>'+(has?(e.confirmedAt?'<span class="pill ok">확인</span>':'<span class="pill warn">미확인</span>'):'')+'</button><button class="btn sm '+(e&&e.attended?'ghost':'acc')+'" data-act="qatt" data-id="'+esc(r.m.id)+'">'+(e&&e.attended?'출석 취소':'출석 처리')+'</button></div>'});
+  rows.forEach(function(r){var e=r.e;var has=e&&needsConfirm(e)||(e&&e.confirmedAt);
+    var det=e?[(e.official?'센터 출석':(e.attended?'앱 출석':'기록만')),(+e.minutes?e.minutes+'분':''),(+e.kcal?e.kcal+'kcal':''),(e.topGrade||'')].filter(Boolean).join(' · '):'기록 없음';
+    h+='<div class="memrow"><button class="mem" data-memday="'+esc(r.m.id)+'"><span class="av" style="'+(e&&e.attended?'':'background:var(--soft);color:var(--mute)')+'">'+esc(r.m.name.charAt(0))+'</span><span class="t"><b>'+esc(r.m.name)+'</b><span>'+esc(det)+'</span></span>'+(has?(e.confirmedAt?'<span class="pill ok">확인</span>':'<span class="pill warn">미확인</span>'):'')+'</button>'+(e&&e.official?'<button class="btn sm ghost" disabled>센터 출석</button>':'<button class="btn sm '+(e&&e.attended?'ghost':'acc')+'" data-act="qatt" data-id="'+esc(r.m.id)+'">'+(e&&e.attended?'출석 취소':'출석 처리')+'</button>')+'</div>'});
   return h+hourChart();
 }
 function viewMatrix(){
@@ -548,7 +551,7 @@ function heroHtml(){
   return '<div class="hero2"><div class="top"><div><div class="hi">'+esc(hi)+'</div><div class="hs">'+esc(hs)+'</div></div>'+
    '<button class="ringbtn" data-act="goal" aria-label="활동 링. 눌러서 주간 목표 바꾸기 (현재 주 '+g+'회)"><svg viewBox="0 0 100 100">'+ringArc(44,8,wc/g,'#FF6A33')+ringArc(32,8,tmin/60,'#FFC24A')+ringArc(20,8,tk/400,'#5EE6A8')+'</svg></button></div>'+
    '<div class="rl"><i style="color:#FF6A33">●</i> 이번 주 '+wc+'/'+g+'회 &nbsp;<i style="color:#FFC24A">●</i> 오늘 '+tmin+'/60분 &nbsp;<i style="color:#5EE6A8">●</i> 오늘 '+Math.round(tk)+'/400kcal</div>'+
-   '<div class="hstats"><div><b><svg class="flame" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 5 6 5 11a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-4-1-6 1-10z"/></svg>'+st+'</b><span>연속 출석</span></div><div><b>'+md+'</b><span>이번 달 출석</span></div><div><b>'+Math.round(mk).toLocaleString('ko-KR')+'</b><span>이번 달 kcal</span></div></div>'+
+   '<div class="hstats"><div><b><svg class="flame" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 5 6 5 11a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-4-1-6 1-10z"/></svg>'+st+'</b><span>연속 출석</span></div><div><b>'+attRate(map,TODAY.slice(0,7))+'%</b><span>이번 달 출석률 · '+md+'회</span></div><div><b>'+Math.round(mk).toLocaleString('ko-KR')+'</b><span>이번 달 kcal</span></div></div>'+
    levelHtml(t.days)+'<div class="wdots">'+['월','화','수','목','금','토','일'].map(function(dn,i){var dk=shiftDay(weekStart(TODAY),i);return '<div class="'+((map[dk]&&map[dk].attended)?'on ':'')+(dk===TODAY?'td':'')+'"><i></i>'+dn+'</div>'}).join('')+'</div><div class="hline">이번 달 '+esc(equiv(mk))+(wsn>0?' · '+wsn+'주 연속 목표 달성':'')+'</div></div>';
 }
 function chatPreviewHtml(){var c=S.chat;var m=c.msgs.length?c.msgs[c.msgs.length-1]:null;
@@ -578,7 +581,7 @@ function hourChart(){var cnt={},tot=0,from=shiftDay(TODAY,-30);Object.keys(matri
   var hs=[];for(var h=6;h<=23;h++)hs.push(h);var mx=Math.max.apply(null,hs.map(function(h){return cnt[h]||0}).concat([1]));var peak=hs.filter(function(h){return (cnt[h]||0)===mx})[0];
   return '<div class="card"><h3>시간대별 출석 <span class="pill">최근 30일</span></h3><div class="hc">'+hs.map(function(h){var v=cnt[h]||0;return '<div title="'+h+'시 '+v+'명"><i style="height:'+Math.round(v/mx*80)+'%"></i><span>'+(h%3===0?h:'')+'</span></div>'}).join('')+'</div><p class="sub" style="margin:8px 0 0">가장 붐비는 시간은 '+peak+'시예요. (출석 체크를 누른 시각 기준)</p></div>'}
 function csvExport(){var ds=monthDates(S.month);var rows=[['회원번호','이름'].concat(ds.map(function(d){return d.slice(5)})).concat(['출석합계','소모kcal'])];
-  S.roster.slice().sort(function(a,b){return a.name.localeCompare(b.name,'ko')}).forEach(function(m){var map=matrixCache[m.id]||{};var tot=0,kc=0;var r=[m.id,m.name];ds.forEach(function(d){var e=map[d];var a=e&&e.attended?1:0;tot+=a;kc+=e?(+e.kcal||0):0;r.push(a?1:(hasLog(e)?'기록':''))});r.push(tot,kc);rows.push(r)});
+  S.roster.slice().sort(function(a,b){return a.name.localeCompare(b.name,'ko')}).forEach(function(m){var map=matrixCache[m.id]||{};var tot=0,kc=0;var r=[m.no||'',m.name];ds.forEach(function(d){var e=map[d];var a=e&&e.attended?1:0;tot+=a;kc+=e?(+e.kcal||0):0;r.push(a?1:(hasLog(e)?'기록':''))});r.push(tot,kc);rows.push(r)});
   var csv='﻿'+rows.map(function(r){return r.map(function(c){c=String(c);return /[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c}).join(',')}).join('\r\n');
   var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='grabon-'+S.month+'.csv';document.body.appendChild(a);a.click();a.remove()}
 
@@ -791,7 +794,7 @@ if(tok){
   rpc('gb_me',{p_token:tok}).then(function(m){onLogin(tok,m)},function(e){if(e&&e.code==='network'){S.ready=true;render();toast('인터넷 연결을 확인하세요')}else forceLogout()});
 }else{S.ready=true;render()}
 /* ---------- 자동 업데이트: 앱을 켜거나 다시 열 때마다 새 버전 확인 ---------- */
-var APP_V='gb-v12',reloading=false,pendingUpdate=false;
+var APP_V='gb-v13',reloading=false,pendingUpdate=false;
 function applyUpdate(){if(reloading)return;var a=document.activeElement;
   if(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)&&S.session){pendingUpdate=true;return}
   reloading=true;try{flush()}catch(e){}toast('새 버전으로 업데이트해요');setTimeout(function(){location.reload()},700)}

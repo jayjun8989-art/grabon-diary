@@ -12,16 +12,20 @@
 <style>
 /* Layout: mobile-first single column app, bottom tab bar, cards per training block */
 :root{
-  --bg:#EEF0F2; --surface:#FFFFFF; --ink:#12161C; --mute:#5B6470; --line:#D9DEE4;
-  --accent:#E8470F; --accent-ink:#FFFFFF; --soft:#F5F6F8; --ok:#1E8E5A; --warn:#B7791F;
+  --bg:#F3F1EE; --surface:#FFFFFF; --ink:#151515; --mute:#77726B; --line:#E7E3DD;
+  --accent:#D81E26; --accent-ink:#FFFFFF; --soft:#F1EEEA; --ok:#2E7D5B; --warn:#A8761A;
+  --panel:#0B0B0C; --panel-line:#0B0B0C; --panel-ink:#F3F0EC; --panel-mute:#9A958E;
   --display:'Archivo','Noto Sans KR',system-ui,sans-serif; --body:'Noto Sans KR',system-ui,-apple-system,'Segoe UI',sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0E1115; --surface:#171B21; --ink:#ECEFF3; --mute:#98A2AF; --line:#272D36;
-  --accent:#FF6A33; --accent-ink:#12161C; --soft:#1D222A; --ok:#3CC38A; --warn:#E3A92F; color-scheme:dark}}
+  --bg:#0A0A0B; --surface:#141416; --ink:#F3F0EC; --mute:#8D8983; --line:#25252A;
+  --accent:#E5252C; --accent-ink:#FFFFFF; --soft:#1C1C20; --ok:#58B891; --warn:#D9A441;
+  --panel:#171719; --panel-line:#2A2A2F; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0E1115; --surface:#171B21; --ink:#ECEFF3; --mute:#98A2AF; --line:#272D36;
-  --accent:#FF6A33; --accent-ink:#12161C; --soft:#1D222A; --ok:#3CC38A; --warn:#E3A92F; color-scheme:dark}
+  --bg:#0A0A0B; --surface:#141416; --ink:#F3F0EC; --mute:#8D8983; --line:#25252A;
+  --accent:#E5252C; --accent-ink:#FFFFFF; --soft:#1C1C20; --ok:#58B891; --warn:#D9A441;
+  --panel:#171719; --panel-line:#2A2A2F; color-scheme:dark}
+body.dark-login{--bg:#0A0A0B;--surface:#141416;--ink:#F3F0EC;--mute:#8D8983;--line:#25252A;--soft:#1C1C20;--accent:#E5252C;color-scheme:dark}
 *{box-sizing:border-box}html,body{margin:0}body{-webkit-text-size-adjust:100%;word-break:keep-all;overflow-wrap:anywhere}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 96px}
@@ -102,7 +106,6 @@ nav.tabs button[aria-current=page]{background:var(--soft);color:var(--accent)}
 .demo{background:var(--ink);color:var(--bg);border-radius:12px;padding:10px 12px;font-size:13px;margin-top:6px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .demo button{border:0;border-radius:8px;padding:6px 10px;font-weight:700;background:var(--accent);color:var(--accent-ink)}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:12px;font-size:13px;z-index:20;max-width:90vw}
-:root{--panel:#12161C;--panel2:#1B2129;--panel-ink:#F2F4F7;--panel-mute:#9AA4B1}
 .hero2{position:relative;overflow:hidden;margin-top:10px;border-radius:20px;padding:18px;color:var(--panel-ink);background:radial-gradient(120% 90% at 100% 0%,rgba(255,106,51,.35),transparent 55%),linear-gradient(160deg,#1B2129,#0C0F13);border:1px solid #2A313B}
 .hero2 .hi{font-family:var(--display);font-weight:900;font-size:22px;line-height:1.2;text-wrap:balance;max-width:14em}
 .hero2 .hs{color:var(--panel-mute);font-size:13px;margin-top:4px}
@@ -117,7 +120,7 @@ nav.tabs button[aria-current=page]{background:var(--soft);color:var(--accent)}
 .hstats span{font-size:11px;color:var(--panel-mute)}
 .wdots{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:14px}.wdots div{text-align:center;font-size:10px;color:var(--panel-mute)}.wdots i{display:block;width:100%;aspect-ratio:1;max-width:30px;margin:0 auto 3px;border-radius:50%;background:rgba(255,255,255,.1)}.wdots .on i{background:var(--accent);box-shadow:0 0 12px rgba(255,106,51,.55)}.wdots .td i{outline:2px solid rgba(255,255,255,.5);outline-offset:1px}
 .lvl{display:flex;align-items:center;gap:10px;margin-top:14px}.lvl b{font-family:var(--display);font-weight:900;font-size:22px;color:var(--accent);min-width:40px}
-.lvl .bar{flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,.12);overflow:hidden}.lvl .bar i{display:block;height:100%;background:linear-gradient(90deg,#FF6A33,#FFB59A);border-radius:4px}
+.lvl .bar{flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,.12);overflow:hidden}.lvl .bar i{display:block;height:100%;background:var(--accent);border-radius:4px}
 .lvl span{font-size:12px;color:var(--panel-mute);white-space:nowrap}
 .hc{display:grid;grid-template-columns:repeat(18,minmax(0,1fr));height:96px;gap:3px;align-items:end}
 .hc div{height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;font-size:10px;color:var(--mute);gap:2px}
@@ -134,9 +137,9 @@ nav.tabs button[aria-current=page]{background:var(--soft);color:var(--accent)}
 .feed .row2 .t{flex:1;min-width:0}.feed .row2 .t b{display:block}.feed .row2 .t span{font-size:12px;color:var(--mute)}
 .kd{border:1px solid var(--line);background:var(--soft);border-radius:99px;padding:6px 12px;font-size:13px;font-weight:700;white-space:nowrap}
 .kd[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.chal .bar{height:10px;border-radius:5px;background:var(--soft);overflow:hidden;margin:8px 0 6px}.chal .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#FFB59A)}
+.chal .bar{height:10px;border-radius:5px;background:var(--soft);overflow:hidden;margin:8px 0 6px}.chal .bar i{display:block;height:100%;background:var(--accent)}
 .rl{font-size:12px;color:var(--panel-mute);margin-top:8px;line-height:1.7}.rl i{font-style:normal}
-.hline{margin-top:12px;font-size:13px;color:#FFB59A;font-weight:700}
+.hline{margin-top:12px;font-size:13px;color:var(--panel-mute);font-weight:700}
 .flame{width:14px;height:14px;fill:var(--accent);vertical-align:-1px;margin-right:2px}
 .badges{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .bd{border-radius:12px;padding:10px 6px;text-align:center;background:var(--soft);color:var(--mute);font-size:12px;font-weight:700;line-height:1.3;border:1px solid var(--line)}
@@ -192,41 +195,61 @@ nav.tabs button[aria-current=page]{background:var(--soft);color:var(--accent)}
 @media (max-width:420px){.cond{grid-template-columns:78px minmax(0,1fr)}.row,.colhead{grid-template-columns:minmax(0,1fr) 60px minmax(0,1.3fr)}}
 @media (prefers-reduced-motion:no-preference){.card{animation:in .25s ease both}@keyframes in{from{opacity:.0;transform:translateY(4px)}to{opacity:1;transform:none}}}
 
-/* ---- 깔끔한 인터페이스 ---- */
-body{font-size:15px;line-height:1.55}
-h2{font-size:24px;font-weight:800;margin:14px 0 2px;letter-spacing:-.01em}
-header.top{padding:16px 0 6px}
-.brand{font-size:19px;letter-spacing:.06em}
-.card{border:0;border-radius:20px;padding:18px;margin-top:12px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-.card h3{font-family:var(--body);font-size:15px;letter-spacing:0;text-transform:none;color:var(--ink);font-weight:700;margin:0 0 12px}
+/* ---- 디자인 v2: 절제된 색, 넓은 여백, 얇은 위계 ---- */
+body{font-size:15px;line-height:1.6;letter-spacing:-.005em}
+h2{font-size:22px;font-weight:700;margin:18px 0 4px;letter-spacing:-.02em}
+.sub{color:var(--mute)}
+header.top{padding:18px 0 8px}
+.brandrow{gap:12px}
+.logo{width:38px;height:38px;border-radius:10px}
+.brand{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.22em}
+.card{border:0;border-radius:18px;padding:20px;margin-top:12px;box-shadow:0 1px 0 rgba(0,0,0,.03),0 14px 32px -22px rgba(0,0,0,.18)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .card{box-shadow:none}}
+:root[data-theme="dark"] .card,body.dark-login .card{box-shadow:none}
+.card h3{font-family:var(--body);font-size:13px;letter-spacing:.02em;text-transform:none;color:var(--mute);font-weight:600;margin:0 0 14px}
 .pill{background:transparent;color:var(--mute);padding:0;font-weight:500;font-size:12px}
-.pill.acc,.pill.ok,.pill.warn{padding:2px 10px;font-weight:700}
-.stat,.dnav,.mem,.matrix,.bd{border:0}
-.stat,.dnav,.mem{background:var(--surface);border-radius:18px}
-.stat b{font-size:24px}
-.filt button,.ichips button,.chips button,.qr button,.kd{border:0;background:var(--soft)}
-.filt button[aria-pressed=true],.ichips button[aria-pressed=true],.chips button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
-.ichips button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink)}
-input[type=text],input[type=number],input[type=password],textarea,select{border:0;background:var(--soft);border-radius:12px;padding:11px 12px}
-.btn{border-radius:14px;padding:14px 16px}
-.btn.ghost{border:0;background:var(--soft)}
+.pill.acc,.pill.ok,.pill.warn{padding:2px 9px;font-weight:600;font-size:11px}
+.pill.acc{background:var(--accent);color:var(--accent-ink)}
+.stat,.dnav,.mem{border:0;background:var(--surface);border-radius:16px}
+.stat b{font-family:var(--display);font-size:26px;font-weight:800;letter-spacing:-.02em}
+.stat span{font-size:12px}
+.matrix,.bd{border:0}
+.btn{border-radius:12px;padding:14px 16px;font-weight:600;background:var(--ink);color:var(--bg)}
+.btn.acc{background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:var(--soft);color:var(--ink);border:0}
+input[type=text],input[type=number],input[type=password],textarea,select{border:0;background:var(--soft);border-radius:12px;padding:12px 14px}
+input:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:0}
+.filt button,.ichips button,.chips button,.qr button,.kd{border:0;background:var(--soft);color:var(--ink);font-weight:600}
+.filt button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.ichips button[aria-pressed=true],.chips button[aria-pressed=true],.kd[aria-pressed=true]{background:var(--accent);color:var(--accent-ink)}
 .rate button,.gt .g{border:0;background:var(--soft)}
-.rate button[aria-pressed=true]{background:var(--accent)}
-.gt .g.on{background:color-mix(in srgb,var(--accent) 18%,var(--soft))}
-.irow,.row2,.lb div{border-top-color:color-mix(in srgb,var(--line) 55%,transparent)}
-.hero2{background:linear-gradient(180deg,#171C24,#0F1318);border:0;border-radius:22px;padding:20px}
-.hero2 .hi{font-size:21px;font-weight:800}
-.hstats div{background:rgba(255,255,255,.05)}
+.rate button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.gt .g.on{background:color-mix(in srgb,var(--accent) 14%,var(--soft))}
+.gt .g.on b{color:var(--accent)}
+.irow,.row2,.lb div{border-top-color:color-mix(in srgb,var(--line) 70%,transparent)}
+.hero2{background:var(--panel);border:1px solid var(--panel-line);border-radius:20px;padding:22px;color:var(--panel-ink)}
+.hero2 .hi{font-family:var(--body);font-size:21px;font-weight:700;letter-spacing:-.02em;line-height:1.3}
+.hero2 .hs{color:var(--panel-mute)}
+.hstats div{background:rgba(255,255,255,.06);border-radius:14px}
+.hstats b{font-weight:800;letter-spacing:-.02em}
 .hline{color:var(--panel-mute);font-weight:500}
+.lvl b{color:#fff}
+.lvl .bar{background:rgba(255,255,255,.14)}
 .wdots .on i{box-shadow:none}
-nav.tabs{border-top:0;box-shadow:0 -1px 0 color-mix(in srgb,var(--line) 70%,transparent)}
-nav.tabs button{font-weight:600}
-.calbtn{}
-.cal button{border:0}
-.cal button.log{box-shadow:inset 0 0 0 1.5px var(--accent)}
-header.top .btn.ghost.sm{background:transparent;color:var(--mute);padding:6px 4px}
-.msg{border-radius:18px 18px 18px 6px}.msg.mine{border-radius:18px 18px 6px 18px}
+.wdots i{background:rgba(255,255,255,.12)}
+.flame{fill:#E5252C}
+nav.tabs{border-top:0;box-shadow:0 -1px 0 color-mix(in srgb,var(--line) 80%,transparent);background:color-mix(in srgb,var(--surface) 90%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+nav.tabs button{font-weight:500;font-size:11px;color:var(--mute)}
+nav.tabs button[aria-current=page]{background:transparent;color:var(--accent);font-weight:700}
+.cal button{border:0;background:var(--soft)}
+.cal button.att{background:var(--accent);color:var(--accent-ink)}
+.cal button.log{background:var(--soft);box-shadow:inset 0 0 0 1.5px var(--accent);color:var(--ink)}
+header.top .btn.ghost.sm{background:transparent;color:var(--mute);padding:6px 4px;font-weight:500}
+.msg{border-radius:18px 18px 18px 6px}.msg.mine{border-radius:18px 18px 6px 18px;background:color-mix(in srgb,var(--accent) 13%,var(--soft))}
 .msg.notice{border:0;box-shadow:inset 0 0 0 1.5px var(--warn)}
+.toast{background:var(--ink);color:var(--bg);border-radius:12px}
+.center .brand{font-size:20px;letter-spacing:.28em}
+.hero{background:#000;border-radius:26px;width:min(52%,200px)}
 </style>
 </head><body>
 <div class="wrap" id="app"><div class="center"><h2>불러오는 중…</h2></div></div>
@@ -253,7 +276,7 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){retur
 
 /* ---------- 서버 연결 (Supabase RPC) ---------- */
 var SB_URL='https://iknidqosbmqzgkhfaktc.supabase.co',SB_KEY='sb_publishable_lFAVbxnln3D2qTNpYEObPw_IrMj1dfo';
-var ERRS={bad_credentials:'회원번호 또는 PIN이 맞지 않아요',locked:'5번 틀려서 5분간 잠겼어요',name_mismatch:'등록된 이름과 달라요',pin_format:'PIN은 숫자 4~6자리로 정해 주세요',pin_too_short:'관리자 PIN은 6자 이상이어야 해요',unauthorized:'다시 로그인해 주세요',forbidden:'권한이 없어요',empty:'회원번호와 이름을 입력하세요',not_found:'회원을 찾을 수 없어요',inactive:'이용권이 끝났어요. 센터에 문의해 주세요',slow_down:'조금 천천히 보내 주세요',bad_message:'메시지는 1~500자로 써 주세요'};
+var ERRS={bad_credentials:'회원번호 또는 이름이 맞지 않아요',locked:'5번 틀려서 5분간 잠겼어요',name_mismatch:'회원번호 또는 이름이 맞지 않아요',pin_format:'PIN은 숫자 4~6자리로 정해 주세요',pin_too_short:'관리자 PIN은 6자 이상이어야 해요',unauthorized:'다시 로그인해 주세요',forbidden:'권한이 없어요',empty:'회원번호와 이름을 입력하세요',not_found:'회원을 찾을 수 없어요',inactive:'이용권이 끝났어요. 센터에 문의해 주세요',slow_down:'조금 천천히 보내 주세요',bad_message:'메시지는 1~500자로 써 주세요'};
 function rpc(fn,args){
   return fetch(SB_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify(args||{})})
    .then(function(r){return r.text().then(function(t){var j=null;try{j=t?JSON.parse(t):null}catch(e){}
@@ -409,15 +432,14 @@ function rateHtml(key,val){var h='<div class="rate" role="group" data-rate="'+ke
 
 function viewLogin(){
   var adm=S.loginMode==='admin';
-  var h='<div class="center"><img class="hero" alt="掌握" src="'+HERO+'"><div class="brand" style="font-size:22px;margin-top:6px">GRABON</div>';
+  var h='<div class="center"><img class="hero" alt="掌握" src="'+HERO+'"><div class="brand" style="margin:18px 0 6px">GRABON</div>';
   if(!adm){
-    h+='<h2 style="margin-top:24px">회원 로그인</h2><div class="card"><label class="sub" for="l-num">회원번호</label><input id="l-num" type="text" inputmode="text" placeholder="회원관리 프로그램의 회원번호" autocomplete="username" style="margin:6px 0 12px">'+
-      '<label class="sub" for="l-name">이름 <span class="pill">처음 로그인할 때만</span></label><input id="l-name" type="text" autocomplete="name" style="margin:6px 0 12px">'+
-      '<label class="sub" for="l-pin">PIN (숫자 4~6자리) <span class="pill">처음이면 새로 정하세요</span></label><input id="l-pin" type="password" inputmode="numeric" maxlength="6" autocomplete="current-password" style="margin:6px 0 14px">'+
-      '<button class="btn acc" data-act="login">로그인</button></div><p class="sub"><a href="#" data-act="adminmode" style="color:var(--accent)">관리자 로그인</a></p>';
+    h+='<div class="card" style="margin-top:28px"><label class="sub" for="l-num">회원번호</label><input id="l-num" type="text" inputmode="text" placeholder="회원관리 프로그램의 회원번호" autocomplete="username" style="margin:6px 0 14px">'+
+      '<label class="sub" for="l-name">이름</label><input id="l-name" type="text" placeholder="이름" autocomplete="name" style="margin:6px 0 18px">'+
+      '<button class="btn acc" data-act="login">시작하기</button></div><p class="sub"><a href="#" data-act="adminmode" style="color:var(--mute)">관리자 로그인</a></p>';
   }else{
-    h+='<h2 style="margin-top:24px">관리자 로그인</h2><div class="card">'+(S.adminSet?'':'<div class="banner" style="margin:0 0 12px">처음이에요. 사용할 관리자 PIN을 정해 주세요 (6자 이상). 지금 정한 PIN이 관리자 PIN이 됩니다.</div>')+
-      '<label class="sub" for="l-apin">관리자 PIN</label><input id="l-apin" type="password" autocomplete="current-password" style="margin:6px 0 14px"><button class="btn acc" data-act="adminlogin">'+(S.adminSet?'로그인':'PIN 정하고 시작')+'</button></div><p class="sub"><a href="#" data-act="membermode" style="color:var(--accent)">회원 로그인으로</a></p>';
+    h+='<div class="card" style="margin-top:28px">'+(S.adminSet?'':'<div class="banner" style="margin:0 0 12px">처음이에요. 사용할 관리자 PIN을 정해 주세요 (6자 이상). 지금 정한 PIN이 관리자 PIN이 됩니다.</div>')+
+      '<label class="sub" for="l-apin">관리자 PIN</label><input id="l-apin" type="password" autocomplete="current-password" style="margin:6px 0 18px"><button class="btn acc" data-act="adminlogin">'+(S.adminSet?'로그인':'PIN 정하고 시작')+'</button></div><p class="sub"><a href="#" data-act="membermode" style="color:var(--mute)">회원 로그인으로</a></p>';
   }
   return h+installHtml()+'</div>';
 }
@@ -445,14 +467,14 @@ function viewMembers(){
   var F=function(k,l){return '<button data-mf="'+k+'" aria-pressed="'+(S.mf===k)+'">'+l+'</button>'};
   var h='<h2>회원 관리</h2>'+noticeHtml()+'<div class="stats" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div class="stat"><b>'+tc+'</b><span>오늘 출석</span></div><div class="stat"><b>'+avgRate()+'%</b><span>평균 출석률(이번 달 출석 회원)</span></div><div class="stat"><b>'+ic+'</b><span>7일 이상 미출석</span></div><div class="stat"><b>'+uc+'</b><span>본인 확인 대기</span></div></div>'+
    '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn acc sm" data-act="newnotice" style="flex:1">공지 올리기</button></div><input id="m-search" type="text" placeholder="이름 또는 회원번호 검색" value="'+esc(S.msearch)+'" style="margin-top:12px"><div class="filt">'+F('all','전체 '+S.roster.length)+F('today','오늘 출석')+F('inactive','7일 미출석')+F('unconf','확인 대기')+'</div><div id="mlist">'+memListHtml()+'</div>';
-  h+='<div class="card"><h3>회원 등록</h3><p class="sub" style="margin:0">회원은 <b>그랩온 회원관리 프로그램</b>에서만 등록하세요. 이용 중인 회원이 이 앱에 자동으로 나타나고, 이용권이 끝난 회원은 자동으로 빠져요. 재등록하면 다시 나타나요. 회원은 프로그램의 회원번호와 이름으로 처음 로그인하면서 PIN을 정합니다.</p></div>';
+  h+='<div class="card"><h3>회원 등록</h3><p class="sub" style="margin:0">회원은 <b>그랩온 회원관리 프로그램</b>에서만 등록하세요. 이용 중인 회원이 이 앱에 자동으로 나타나고, 이용권이 끝난 회원은 자동으로 빠져요. 재등록하면 다시 나타나요. 회원은 프로그램의 회원번호와 이름으로 로그인합니다. PIN은 없어요.</p></div>';
   return h;
 }
 function viewMember(){
   var m=S.roster.filter(function(x){return x.id===S.target})[0]||{name:'회원'};
   return '<button class="btn ghost sm" data-act="back">‹ 회원 목록</button><h2>'+esc(m.name)+'</h2>'+statsHtml(S.days)+weekChart(S.days)+
    '<div class="card">'+calendarHtml(S.days)+'</div>'+dayNav(S.date,'dprev','dnext')+'<div class="sub" style="margin-top:10px">관리자 수정 가능</div>'+editorHtml()+
-   '<div class="card"><h3>회원 정보 관리 <span class="pill">#'+esc(m.no||'')+'</span></h3><p class="sub" style="margin:0 0 10px">이름, 센터, 회원 정보는 그랩온 회원관리 프로그램에서 바꿔요.</p><div style="display:grid;gap:8px"><button class="btn ghost" data-act="resetpin">PIN 초기화 (다시 정하게 하기)</button></div></div>';
+   '<div class="card"><h3>회원 정보 관리 <span class="pill">#'+esc(m.no||'')+'</span></h3><p class="sub" style="margin:0 0 10px">이름, 센터, 회원 정보는 그랩온 회원관리 프로그램에서 바꿔요.</p><div style="display:grid;gap:8px"><button class="btn ghost" data-act="resetpin">이 회원 기기 로그아웃시키기 (분실 시)</button></div></div>';
 }
 var matrixCache={};var matrixUnsubs=[];
 function viewDay(){
@@ -487,6 +509,7 @@ function paintMemberStats(){
 
 function render(fromMatrix){
   if(!S.ready){return}
+  document.body.classList.toggle('dark-login',!S.session);
   var role=activeRole();var body;
   if(!S.session){$app.innerHTML=viewLogin();return}
   if(S.loading){$app.innerHTML=topbar()+'<div class="card sub">불러오는 중…</div>'+tabsHtml();return}
@@ -549,9 +572,9 @@ function heroHtml(){
   var hs=wc>=g?'이제부터는 보너스 라운드예요':att?'손바닥이 한 겹 더 단단해졌어요':'나머지는 손이 알아서 해요. 출석부터 눌러요';
   var wsn=weekStreak(map,g);
   return '<div class="hero2"><div class="top"><div><div class="hi">'+esc(hi)+'</div><div class="hs">'+esc(hs)+'</div></div>'+
-   '<button class="ringbtn" data-act="goal" aria-label="활동 링. 눌러서 주간 목표 바꾸기 (현재 주 '+g+'회)"><svg viewBox="0 0 100 100">'+ringArc(44,8,wc/g,'#FF6A33')+ringArc(32,8,tmin/60,'#FFC24A')+ringArc(20,8,tk/400,'#5EE6A8')+'</svg></button></div>'+
-   '<div class="rl"><i style="color:#FF6A33">●</i> 이번 주 '+wc+'/'+g+'회 &nbsp;<i style="color:#FFC24A">●</i> 오늘 '+tmin+'/60분 &nbsp;<i style="color:#5EE6A8">●</i> 오늘 '+Math.round(tk)+'/400kcal</div>'+
-   '<div class="hstats"><div><b><svg class="flame" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 5 6 5 11a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-4-1-6 1-10z"/></svg>'+st+'</b><span>연속 출석</span></div><div><b>'+attRate(map,TODAY.slice(0,7))+'%</b><span>이번 달 출석률 · '+md+'회</span></div><div><b>'+Math.round(mk).toLocaleString('ko-KR')+'</b><span>이번 달 kcal</span></div></div>'+
+   '<button class="ringbtn" data-act="goal" aria-label="활동 링. 눌러서 주간 목표 바꾸기 (현재 주 '+g+'회)"><svg viewBox="0 0 100 100">'+ringArc(44,8,wc/g,'#E5252C')+ringArc(32,8,tmin/60,'#F3F0EC')+ringArc(20,8,tk/400,'#8D8983')+'</svg></button></div>'+
+   '<div class="rl"><i style="color:#E5252C">●</i> 이번 주 '+wc+'/'+g+'회 &nbsp;<i style="color:#F3F0EC">●</i> 오늘 '+tmin+'/60분 &nbsp;<i style="color:#8D8983">●</i> 오늘 '+Math.round(tk)+'/400kcal</div>'+
+   '<div class="hstats"><div><b><svg class="flame" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 5 6 5 11a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-4-1-6 1-10z"/></svg>'+st+'</b><span>연속 출석</span></div><div><b>'+attRate(map,TODAY.slice(0,7))+'%</b><span>이번 달 출석률</span></div><div><b>'+Math.round(mk).toLocaleString('ko-KR')+'</b><span>이번 달 kcal</span></div></div>'+
    levelHtml(t.days)+'<div class="wdots">'+['월','화','수','목','금','토','일'].map(function(dn,i){var dk=shiftDay(weekStart(TODAY),i);return '<div class="'+((map[dk]&&map[dk].attended)?'on ':'')+(dk===TODAY?'td':'')+'"><i></i>'+dn+'</div>'}).join('')+'</div><div class="hline">이번 달 '+esc(equiv(mk))+(wsn>0?' · '+wsn+'주 연속 목표 달성':'')+'</div></div>';
 }
 function chatPreviewHtml(){var c=S.chat;var m=c.msgs.length?c.msgs[c.msgs.length-1]:null;
@@ -756,9 +779,9 @@ document.addEventListener('click',function(e){
   else if(a==='install'){if(installEvt){installEvt.prompt();installEvt.userChoice.then(function(){installEvt=null;render(true)},function(){})}}
   else if(a==='adminmode'||a==='membermode'){e.preventDefault();S.loginMode=a==='adminmode'?'admin':'member';
     if(a==='adminmode')rpc('gb_admin_status').then(function(v){S.adminSet=!!v;render()},function(){render()});else render()}
-  else if(a==='login'){var num=document.getElementById('l-num').value.trim(),nm=document.getElementById('l-name').value.trim(),pin=document.getElementById('l-pin').value.trim();
-    if(!num||!pin){toast('회원번호와 PIN을 입력하세요');return}
-    el.disabled=true;rpc('gb_login',{p_num:num,p_name:nm,p_pin:pin}).then(function(r){onLogin(r.token,{admin:false,num:r.num,name:r.name});if(r.first)toast('PIN이 설정됐어요. 다음부터 번호와 PIN으로 들어오세요')},function(er){el.disabled=false;if(er.code==='name_mismatch'&&!nm)toast('처음 로그인은 이름도 입력하세요');else toast(errText(er))})}
+  else if(a==='login'){var num=document.getElementById('l-num').value.trim(),nm=document.getElementById('l-name').value.trim();
+    if(!num||!nm){toast('회원번호와 이름을 입력하세요');return}
+    el.disabled=true;rpc('gb_login',{p_num:num,p_name:nm,p_pin:''}).then(function(r){onLogin(r.token,{admin:false,num:r.num,name:r.name})},function(er){el.disabled=false;toast(errText(er))})}
   else if(a==='adminlogin'){var ap=document.getElementById('l-apin').value.trim();if(!ap){toast('PIN을 입력하세요');return}
     el.disabled=true;rpc('gb_admin_login',{p_pin:ap}).then(function(r){onLogin(r.token,{admin:true});if(r.first)toast('관리자 PIN이 설정됐어요')},function(er){el.disabled=false;toast(errText(er))})}
   else if(a==='logout'){flush();rpc('gb_logout',{p_token:S.token}).then(forceLogout,forceLogout)}
@@ -769,7 +792,7 @@ document.addEventListener('click',function(e){
       .then(function(){toast(okn+'명 등록'+(bad.length?' · 실패: '+bad.join(', '):''));return loadAll()})}
   else if(a==='rename'){var nn=document.getElementById('e-name').value.trim();if(!nn)return;
     rpc('gb_member_edit',{p_token:S.token,p_num:S.target,p_name:nn,p_reset_pin:false,p_delete:false}).then(function(){toast('이름을 저장했어요');return loadAll()},fail)}
-  else if(a==='resetpin'){rpc('gb_member_edit',{p_token:S.token,p_num:S.target,p_name:'',p_reset_pin:true,p_delete:false}).then(function(){toast('PIN을 초기화했어요. 회원이 번호와 이름으로 다시 정하게 됩니다');return loadAll()},fail)}
+  else if(a==='resetpin'){rpc('gb_member_edit',{p_token:S.token,p_num:S.target,p_name:'',p_reset_pin:true,p_delete:false}).then(function(){toast('로그아웃시켰어요. 회원은 번호와 이름으로 다시 들어올 수 있어요');return loadAll()},fail)}
   else if(a==='delmem'){if(!S.confirmDel){S.confirmDel=true;render(true);return}
     rpc('gb_member_edit',{p_token:S.token,p_num:S.target,p_name:'',p_reset_pin:false,p_delete:true}).then(function(){S.confirmDel=false;S.target=null;toast('삭제했어요');return loadAll()},fail)}
 });
@@ -788,13 +811,13 @@ function forceLogout(){
   S.ready=true;render();
 }
 var tok=null;try{tok=localStorage.getItem('gb_tok')}catch(e){}
-$app.innerHTML='<div class="center"><img class="hero" alt="" src="'+HERO+'"></div>';
+document.body.classList.add('dark-login');$app.innerHTML='<div class="center"><img class="hero" alt="" src="'+HERO+'"></div>';
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target&&/^l-/.test(e.target.id||'')){var b=document.querySelector('.center [data-act=login],.center [data-act=adminlogin]');if(b)b.click()}});
 if(tok){
   rpc('gb_me',{p_token:tok}).then(function(m){onLogin(tok,m)},function(e){if(e&&e.code==='network'){S.ready=true;render();toast('인터넷 연결을 확인하세요')}else forceLogout()});
 }else{S.ready=true;render()}
 /* ---------- 자동 업데이트: 앱을 켜거나 다시 열 때마다 새 버전 확인 ---------- */
-var APP_V='gb-v14',reloading=false,pendingUpdate=false;
+var APP_V='gb-v15',reloading=false,pendingUpdate=false;
 function applyUpdate(){if(reloading)return;var a=document.activeElement;
   if(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)&&S.session){pendingUpdate=true;return}
   reloading=true;try{flush()}catch(e){}toast('새 버전으로 업데이트해요');setTimeout(function(){location.reload()},700)}

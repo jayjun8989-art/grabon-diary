@@ -1,7 +1,7 @@
 {
   "name": "그랩온 운동일지",
   "short_name": "그랩온",
-  "description": "GRABON LEAD 15th 회원 운동일지와 출석 체크",
+  "description": "그랩온 회원 운동일지와 출석 체크",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

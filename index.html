@@ -251,26 +251,40 @@ header.top .btn.ghost.sm{background:transparent;color:var(--mute);padding:6px 4p
 .center .brand{font-size:20px;letter-spacing:.28em}
 .hero{background:#000;border-radius:26px;width:min(52%,200px)}
 
-/* ---- 인터벌 타이머 ---- */
-.tmr{background:var(--panel);border:1px solid var(--panel-line);color:var(--panel-ink);border-radius:22px;padding:22px 18px 18px;text-align:center;transition:background .25s}
-.tmr[data-ph=work]{background:var(--accent);border-color:var(--accent)}
-.tmr[data-ph=work] .tsub,.tmr[data-ph=work] .tphase{color:rgba(255,255,255,.85)}
-.tmr[data-ph=done]{background:var(--ink);color:var(--bg)}
-.tmr .tphase{font-size:15px;font-weight:700;letter-spacing:.04em;color:var(--panel-mute)}
-.tmr .tbig{font-family:var(--display);font-weight:800;font-size:clamp(84px,30vw,132px);line-height:1;letter-spacing:-.04em;font-variant-numeric:tabular-nums;margin:6px 0 4px}
-.tmr .tsub{font-size:14px;color:var(--panel-mute);font-variant-numeric:tabular-nums}
-.tmr .tbar{height:6px;border-radius:3px;background:rgba(255,255,255,.18);margin:16px 6px 18px;overflow:hidden}
-.tmr .tbar i{display:block;height:100%;width:100%;background:currentColor;border-radius:3px;opacity:.9}
-.tmr .tctl{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px}
-.tmr .tctl .btn{padding:15px 8px}
-.tmr .btn.ghost{background:rgba(255,255,255,.12);color:inherit}
-.tmr[data-ph=work] .btn.acc{background:#fff;color:var(--accent)}
-.tmr[data-ph=done] .btn.ghost{background:rgba(0,0,0,.12)}
-.tfld{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
-.tfld:first-of-type{border-top:0}
-.tfld .st{display:inline-flex;align-items:center;gap:6px}
-.tfld .st button{width:38px;height:38px;border-radius:10px;border:0;background:var(--soft);font-size:18px;font-weight:600}
-.tfld .st b{min-width:52px;text-align:center;font-family:var(--display);font-size:18px;font-variant-numeric:tabular-nums}
+/* ---- 인터벌 타이머 v2 ---- */
+.tmr.card{animation:none}
+.tmr{--tbg:var(--panel);--tfg:var(--panel-ink);--tbtn:rgba(255,255,255,.14);--tmain:var(--accent);--tmainfg:#fff;background:var(--tbg);color:var(--tfg);border-radius:28px;padding:26px 18px 22px;text-align:center;transition:background .3s,color .3s;border:1px solid var(--panel-line)}
+.tmr[data-ph=work]{--tbg:var(--accent);--tfg:#fff;--tbtn:rgba(255,255,255,.2);--tmain:#fff;--tmainfg:var(--accent);border-color:var(--accent)}
+.tmr[data-ph=rest]{--tbg:#F3F0EC;--tfg:#141414;--tbtn:rgba(0,0,0,.08);--tmain:#141414;--tmainfg:#fff;border-color:#F3F0EC}
+.tmr[data-ph=done]{--tbg:var(--ink);--tfg:var(--bg);--tbtn:rgba(128,128,128,.22);border-color:var(--ink)}
+.tface{position:relative;width:min(76vw,290px);aspect-ratio:1;margin:0 auto}
+.tring{position:absolute;inset:0;width:100%;height:100%}
+.tring .trk{fill:none;stroke:currentColor;opacity:.16;stroke-width:7}
+.tring .arc{fill:none;stroke:currentColor;stroke-width:7;stroke-linecap:round;stroke-dasharray:553;stroke-dashoffset:0;transition:stroke-dashoffset .12s linear}
+.tin{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.tphase{font-size:14px;font-weight:700;letter-spacing:.12em;opacity:.8}
+.tbig{font-family:var(--display);font-weight:800;font-size:clamp(80px,27vw,112px);line-height:1;letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+.tsub{font-size:13px;opacity:.75;padding:0 12px;line-height:1.35;min-height:1.35em}
+.tdots{display:flex;justify-content:center;gap:7px;margin:18px 0 4px;flex-wrap:wrap;min-height:11px}
+.tdots i{width:9px;height:9px;border-radius:50%;background:currentColor;opacity:.22}
+.tdots i.d{opacity:.9}.tdots i.c{opacity:1;transform:scale(1.35)}
+.tbtns{display:flex;justify-content:center;align-items:center;gap:26px;margin-top:14px}
+.tb{width:56px;height:56px;border-radius:50%;border:0;background:var(--tbtn);color:inherit;display:grid;place-items:center;padding:0}
+.tb.main{width:88px;height:88px;background:var(--tmain);color:var(--tmainfg)}
+.tb svg{width:26px;height:26px;fill:currentColor;stroke:none}.tb.main svg{width:34px;height:34px}
+.tb svg.ln{fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.tcap{margin-top:12px;font-size:14px;font-weight:700;opacity:.9;min-height:1.4em}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--soft);border-radius:14px;padding:4px;margin-bottom:6px}
+.seg button{border:0;background:transparent;color:var(--mute);font-weight:700;padding:11px 6px;border-radius:11px}
+.seg button[aria-pressed=true]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.tset{padding:14px 0;border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
+.tset:first-of-type{border-top:0}
+.tset .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.tset .hd span{font-weight:700}
+.tset .st{display:inline-flex;align-items:center;gap:8px}
+.tset .st button{width:36px;height:36px;border-radius:50%;border:0;background:var(--soft);font-size:18px;font-weight:600;color:var(--ink)}
+.tset .st b{min-width:54px;text-align:center;font-family:var(--display);font-size:20px;font-variant-numeric:tabular-nums}
+.tset .ichips{margin:0}
 </style>
 </head><body>
 <div class="wrap" id="app"><div class="center"><h2>불러오는 중…</h2></div></div>
@@ -727,19 +741,10 @@ function enablePush(){
 
 
 /* ---------- 인터벌 타이머 ---------- */
-var TP=[
- ['턱걸이 하고 버튼 → 30초 쉬기',{label:'턱걸이',manual:true,work:30,rest:30,rounds:5,sets:1,setRest:0,item:'pull'}],
- ['턱걸이 30초 / 30초 쉬기',{label:'턱걸이',manual:false,work:30,rest:30,rounds:5,sets:1,setRest:0,item:'pull'}],
- ['행보드 7/3',{label:'매달리기',manual:false,work:7,rest:3,rounds:6,sets:3,setRest:180,item:'campus'}],
- ['타바타 20/10',{label:'운동',manual:false,work:20,rest:10,rounds:8,sets:1,setRest:0,item:'etc'}],
- ['볼더링 4분/3분',{label:'등반',manual:false,work:240,rest:180,rounds:5,sets:1,setRest:0,item:'boulder'}],
- ['스트레칭 30/10',{label:'스트레칭',manual:false,work:30,rest:10,rounds:6,sets:1,setRest:0,item:'stretch'}],
- ['휴식 3분',{label:'휴식',manual:false,work:180,rest:0,rounds:1,sets:1,setRest:0,item:''}]
-];
-var TF=[['work','운동 시간',5,1,3600,'초'],['rest','휴식 시간',5,0,3600,'초'],['rounds','라운드(세트 수)',1,1,99,'회'],['sets','큰 세트',1,1,99,'세트'],['setRest','큰 세트 사이 휴식',15,0,3600,'초']];
-var RESTQ=[15,30,45,60,90,120,180];
-var T={cfg:null,run:false,phase:'idle',left:0,dur:0,round:1,set:1,end:0,act:0,last:0,lastSec:-1,iv:null,ctx:null,wl:null,wstart:0};
-function tmrCfgLoad(){try{var c=JSON.parse(localStorage.getItem('gb_tmr'));if(c&&c.work!=null&&c.rest!=null)return c}catch(e){}return JSON.parse(JSON.stringify(TP[0][1]))}
+var TF=[['work','운동',5,1,3600,[20,30,40,45,60]],['rest','휴식',5,0,3600,[10,20,30,45,60]],['sets','세트',1,1,99,[3,5,6,8,10]]];
+var T={cfg:null,run:false,phase:'idle',left:0,dur:0,set:1,end:0,act:0,last:0,lastSec:-1,iv:null,ctx:null,wl:null,wstart:0};
+function tmrCfgLoad(){var d={work:30,rest:30,sets:5,manual:false};
+  try{var c=JSON.parse(localStorage.getItem('gb_tmr'));if(c){if(+c.work>0)d.work=+c.work;if(c.rest!=null&&!isNaN(+c.rest))d.rest=+c.rest;var n=+(c.rounds||c.sets);if(n>0)d.sets=n;d.manual=!!c.manual}}catch(e){}return d}
 T.cfg=tmrCfgLoad();T.left=T.cfg.work;
 function tmrCfgSave(){try{localStorage.setItem('gb_tmr',JSON.stringify(T.cfg))}catch(e){}}
 function fmtT(sec){sec=Math.max(0,Math.round(sec));var m=Math.floor(sec/60),r=sec%60;return m>0?m+':'+(r<10?'0'+r:r):String(r)}
@@ -751,74 +756,74 @@ function buzz(p){try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
 function wake(){try{if(navigator.wakeLock&&!T.wl)navigator.wakeLock.request('screen').then(function(l){T.wl=l;l.addEventListener('release',function(){T.wl=null})}).catch(function(){})}catch(e){}}
 function unwake(){try{if(T.wl){T.wl.release();T.wl=null}}catch(e){}}
 function tmrManual(){return !!(T.cfg.manual&&T.phase==='work')}
-function tmrTotal(c){return c.sets*(c.rounds*c.work+Math.max(0,c.rounds-1)*c.rest)+Math.max(0,c.sets-1)*c.setRest}
+function tmrTotal(c){return c.sets*c.work+Math.max(0,c.sets-1)*c.rest}
 function setPhase(ph,base){var c=T.cfg;T.phase=ph;
-  T.dur=ph==='ready'?5:ph==='work'?c.work:ph==='rest'?c.rest:ph==='setrest'?c.setRest:0;
+  T.dur=ph==='ready'?5:ph==='work'?c.work:ph==='rest'?c.rest:0;
   if(ph==='work'&&c.manual){T.dur=0;T.end=Infinity;T.left=Infinity;T.wstart=Date.now()}
   else{T.end=base+T.dur*1000;T.left=(T.end-Date.now())/1000}
   T.lastSec=-1;
   if(ph==='work'){alarm(4,1000);buzz([200,80,200,80,200])}
-  else if(ph==='rest'||ph==='setrest'){alarm(2,700);buzz([150,80,150])}
+  else if(ph==='rest'){alarm(2,700);buzz([150,80,150])}
   else if(ph==='done'){alarm(8,1200);buzz([300,100,300,100,600]);tmrStop(true)}}
 function nextPhase(){var c=T.cfg,p=T.phase,b=(T.end===Infinity)?Date.now():T.end;
   if(p==='ready'){setPhase('work',b);return}
   if(p==='work'){
-    if(T.round<c.rounds){if(c.rest>0)setPhase('rest',Date.now()>b?Date.now():b);else{T.round++;setPhase('work',b)}}
-    else if(T.set<c.sets){if(c.setRest>0)setPhase('setrest',b);else{T.set++;T.round=1;setPhase('work',b)}}
+    if(T.set<c.sets){if(c.rest>0)setPhase('rest',b);else{T.set++;setPhase('work',b)}}
     else setPhase('done',b);return}
-  if(p==='rest'){T.round++;setPhase('work',b);return}
-  if(p==='setrest'){T.set++;T.round=1;setPhase('work',b);return}}
+  if(p==='rest'){T.set++;setPhase('work',b)}}
 function tmrTick(){var now=Date.now();
-  if(T.last&&(T.phase==='work'||T.phase==='rest'||T.phase==='setrest'))T.act+=now-T.last;T.last=now;
+  if(T.last&&(T.phase==='work'||T.phase==='rest'))T.act+=now-T.last;T.last=now;
   if(!tmrManual()){
     T.left=(T.end-now)/1000;var g=0;
     while(T.left<=0&&T.phase!=='done'&&T.phase!=='idle'&&!tmrManual()&&g++<30){nextPhase();T.left=(T.end-now)/1000}
     var sec=Math.ceil(T.left);
-    if(T.run&&T.dur>3&&sec>=1&&sec<=3&&sec!==T.lastSec&&(T.phase==='work'||T.phase==='rest'||T.phase==='setrest'||T.phase==='ready')){beep(660,.08,.25);T.lastSec=sec}}
+    if(T.run&&T.dur>3&&sec>=1&&sec<=3&&sec!==T.lastSec&&(T.phase==='work'||T.phase==='rest'||T.phase==='ready')){beep(660,.08,.25);T.lastSec=sec}}
   tmrPaint()}
 function tmrStart(){
   if(T.run&&tmrManual()){nextPhase();tmrPaint();return}
   if(T.run){tmrPause();return}
   if(!T.ctx){try{T.ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}
   if(T.ctx&&T.ctx.state==='suspended')T.ctx.resume();
-  if(T.phase==='idle'||T.phase==='done'){T.round=1;T.set=1;T.act=0;setPhase('ready',Date.now())}
+  if(T.phase==='idle'||T.phase==='done'){T.set=1;T.act=0;setPhase('ready',Date.now())}
   else if(tmrManual()){T.wstart=Date.now()}
   else{T.end=Date.now()+T.left*1000}
   T.run=true;T.last=Date.now();clearInterval(T.iv);T.iv=setInterval(tmrTick,100);wake();tmrPaint();repaintTabs()}
 function tmrPause(){T.run=false;clearInterval(T.iv);T.left=Math.max(0,(T.end-Date.now())/1000);unwake();tmrPaint();repaintTabs()}
-function tmrStop(done){T.run=false;clearInterval(T.iv);unwake();if(!done){T.phase='idle';T.left=T.cfg.work;T.round=1;T.set=1}tmrPaint();repaintTabs();if(pendingUpdate){pendingUpdate=false;setTimeout(applyUpdate,500)}}
-function tmrLabel(){var c=T.cfg,p=T.phase;var l=p==='idle'?'준비됨':p==='ready'?'준비':p==='work'?(c.label||'운동')+(c.manual?' 중':''):p==='rest'?'휴식':p==='setrest'?'큰 세트 휴식':'완료';
-  if(!T.run&&p!=='idle'&&p!=='done')l+=' · 일시정지';return l}
-function tmrBig(){var p=T.phase;if(p==='idle')return c0();if(p==='done')return fmtT(T.act/1000);if(tmrManual())return fmtT((Date.now()-T.wstart)/1000);return String(fmtT(Math.ceil(Math.max(0,T.left))));function c0(){return T.cfg.manual?fmtT(T.cfg.rest):fmtT(T.cfg.work)}}
+function tmrStop(done){T.run=false;clearInterval(T.iv);unwake();if(!done){T.phase='idle';T.left=T.cfg.work;T.set=1}tmrPaint();repaintTabs();if(pendingUpdate){pendingUpdate=false;setTimeout(applyUpdate,500)}}
+function tmrLabel(){var p=T.phase;var l=p==='idle'?'준비':p==='ready'?'준비':p==='work'?'운동':p==='rest'?'휴식':'완료';
+  if(!T.run&&p!=='idle'&&p!=='done')l+=' · 정지';return l}
+function tmrBig(){var p=T.phase,c=T.cfg;if(p==='idle')return fmtT(c.manual?c.rest:c.work);if(p==='done')return fmtT(T.act/1000);if(tmrManual())return fmtT((Date.now()-T.wstart)/1000);return String(fmtT(Math.ceil(Math.max(0,T.left))))}
 function tmrSub(){var c=T.cfg,p=T.phase;
-  if(p==='idle')return c.manual?('운동 끝나면 버튼 → 휴식 '+c.rest+'초 · '+c.rounds+'세트'):('라운드 '+c.rounds+' · 세트 '+c.sets+' · 총 '+fmtT(tmrTotal(c))+' 예상');
-  if(p==='done')return '운동 완료 · 실제 운동 '+fmtT(T.act/1000);
+  if(p==='idle')return c.manual?('운동 끝나면 버튼 · 휴식 '+c.rest+'초 · '+c.sets+'세트'):(c.work+'초 운동 · '+c.rest+'초 휴식 · '+c.sets+'세트');
+  if(p==='done')return '총 운동 시간';
   if(p==='ready')return '곧 시작해요';
-  if(tmrManual())return c.rounds>1?('세트 '+T.round+'/'+c.rounds+' · 끝나면 아래 버튼'):'끝나면 아래 버튼';
-  return '세트 '+T.round+'/'+c.rounds+(c.sets>1?' · 큰 세트 '+T.set+'/'+c.sets:'')}
-function tmrBtnLabel(){if(T.run&&tmrManual())return T.cfg.rest>0&&T.round<T.cfg.rounds?'운동 끝 · '+T.cfg.rest+'초 쉬기':'운동 끝';
+  if(tmrManual())return '끝나면 아래 버튼';
+  return '세트 '+T.set+' / '+c.sets}
+function tmrBtnLabel(){if(T.run&&tmrManual())return T.cfg.rest>0&&T.set<T.cfg.sets?'운동 끝 · '+T.cfg.rest+'초 쉬기':'운동 끝';
   return T.run?'일시정지':(T.phase==='idle'||T.phase==='done'?'시작':'계속')}
+var IC={play:'<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',pause:'<svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>',check:'<svg class="ln" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',reset:'<svg class="ln" viewBox="0 0 24 24"><path d="M4 12a8 8 0 108-8M4 4v5h5"/></svg>',skip:'<svg viewBox="0 0 24 24"><path d="M6 5v14l9-7zM17 5h2v14h-2z"/></svg>'};
 function tmrPaint(){var c=document.getElementById('tmr');if(!c)return;c.setAttribute('data-ph',T.phase);
   var q=function(i,v){var e=document.getElementById(i);if(e)e.textContent=v};
-  q('t-phase',tmrLabel());q('t-big',tmrBig());q('t-sub',tmrSub());
-  var bar=document.getElementById('t-bar');if(bar){var pc=(T.phase==='idle'||T.phase==='done'||!T.dur||tmrManual())?100:Math.max(0,Math.min(100,T.left/T.dur*100));bar.style.width=pc+'%'}
-  q('t-start',tmrBtnLabel());
-  var lg=document.getElementById('t-log');if(lg)lg.hidden=!(T.phase==='done'&&T.act>=60000&&T.cfg.item&&!S.isAdmin)}
+  q('t-phase',tmrLabel());q('t-big',tmrBig());q('t-sub',tmrSub());q('t-cap',tmrBtnLabel());
+  var arc=document.getElementById('t-arc');if(arc){var pc=(T.phase==='idle'||T.phase==='done'||!T.dur||tmrManual())?1:Math.max(0,Math.min(1,T.left/T.dur));arc.style.strokeDashoffset=String(553*(1-pc))}
+  var mb=document.getElementById('t-start');if(mb)mb.innerHTML=(T.run&&tmrManual())?IC.check:(T.run?IC.pause:IC.play);
+  var dots=document.getElementById('t-dots');if(dots){var n=T.cfg.sets;if(n>14){dots.innerHTML=''}else{var h='';for(var k=1;k<=n;k++){var cls=(T.phase==='done'||k<T.set||(k===T.set&&T.phase==='rest'))?'d':(k===T.set&&(T.phase==='work'))?'c':'';h+='<i class="'+cls+'"></i>'}dots.innerHTML=h}}
+  var lg=document.getElementById('t-log');if(lg){lg.hidden=!(T.phase==='done'&&T.act>=60000&&!S.isAdmin);q('t-logmin',Math.max(1,Math.round(T.act/60000)))}}
 function timerCfgHtml(){var c=T.cfg;
-  var h='<div class="card"><h3>프리셋</h3><div class="ichips" style="margin:0">'+TP.map(function(x,i){return '<button type="button" data-tp="'+i+'">'+x[0]+'</button>'}).join('')+'</div></div>';
-  h+='<div class="card"><h3>직접 설정'+(c.manual?'':' <span class="pill">총 '+fmtT(tmrTotal(c))+'</span>')+'</h3>'+
-    '<label class="check" style="margin-bottom:12px"><input type="checkbox" data-act="tmanual"'+(c.manual?' checked':'')+'>운동이 끝나면 버튼을 눌러 휴식 시작 (턱걸이처럼 횟수로 하는 운동)</label>';
-  h+='<div class="glab" style="margin:0 0 6px">휴식 시간 바로 고르기</div><div class="ichips">'+RESTQ.map(function(r){return '<button type="button" data-tr="'+r+'" aria-pressed="'+(c.rest===r)+'">'+r+'초</button>'}).join('')+'</div>';
-  h+=TF.filter(function(f){return !(c.manual&&f[0]==='work')}).map(function(f){var v=c[f[0]];
-    return '<div class="tfld"><span>'+f[1]+'</span><span class="st"><button type="button" data-ts="'+f[0]+':-1" aria-label="'+f[1]+' 줄이기">−</button><b>'+(f[5]==='초'?fmtT(v):v)+'</b><button type="button" data-ts="'+f[0]+':1" aria-label="'+f[1]+' 늘리기">+</button></span></div>'}).join('')+'</div>';
+  var h='<div class="card"><div class="seg" role="group" aria-label="운동 끝내는 방식"><button type="button" data-tm="0" aria-pressed="'+(!c.manual)+'">시간으로</button><button type="button" data-tm="1" aria-pressed="'+(!!c.manual)+'">버튼으로</button></div>'+
+   '<p class="sub" style="margin:0 0 6px;font-size:12px">'+(c.manual?'턱걸이처럼 횟수로 하는 운동. 끝나면 버튼을 눌러 휴식을 시작해요.':'정한 시간이 되면 알람이 울리고 자동으로 넘어가요.')+'</p>';
+  h+=TF.filter(function(f){return !(c.manual&&f[0]==='work')}).map(function(f){var v=c[f[0]],u=f[0]==='sets'?'세트':'초';
+    return '<div class="tset"><div class="hd"><span>'+f[1]+'</span><span class="st"><button type="button" data-ts="'+f[0]+':-1" aria-label="'+f[1]+' 줄이기">−</button><b>'+v+(u==='세트'?'':'<small style="font-size:12px;font-weight:600"> 초</small>')+'</b><button type="button" data-ts="'+f[0]+':1" aria-label="'+f[1]+' 늘리기">+</button></span></div>'+
+      '<div class="ichips">'+f[5].map(function(q){return '<button type="button" data-tq="'+f[0]+':'+q+'" aria-pressed="'+(v===q)+'">'+q+(u==='세트'?'세트':'초')+'</button>'}).join('')+'</div></div>'}).join('')+'</div>';
   return h}
-function tmrRefreshCfg(){var tc=document.getElementById('tcfg');if(tc)tc.innerHTML=timerCfgHtml();T.phase='idle';T.left=T.cfg.work;tmrPaint()}
+function tmrRefreshCfg(){var tc=document.getElementById('tcfg');if(tc)tc.innerHTML=timerCfgHtml();T.phase='idle';T.left=T.cfg.work;T.set=1;tmrPaint()}
 function tmrLocked(){return T.phase!=='idle'&&T.phase!=='done'}
 function viewTimer(){
-  return '<h2>인터벌 타이머</h2>'+
-   '<div class="tmr card" id="tmr" data-ph="'+T.phase+'" style="margin-top:12px"><div class="tphase" id="t-phase"></div><div class="tbig" id="t-big"></div><div class="tsub" id="t-sub"></div><div class="tbar"><i id="t-bar"></i></div>'+
-   '<div class="tctl"><button class="btn acc" id="t-start" data-act="tstart">시작</button><button class="btn ghost" data-act="tskip">건너뛰기</button><button class="btn ghost" data-act="treset">초기화</button></div></div>'+
-   '<div class="card" id="t-log" hidden><button class="btn acc" data-act="tlog">오늘 일지에 '+Math.max(1,Math.round(T.act/60000))+'분 추가하기</button></div>'+
+  return '<div class="tmr card" id="tmr" data-ph="'+T.phase+'" style="margin-top:14px"><div class="tface"><svg class="tring" viewBox="0 0 200 200" aria-hidden="true"><circle class="trk" cx="100" cy="100" r="88"/><circle class="arc" id="t-arc" cx="100" cy="100" r="88" transform="rotate(-90 100 100)"/></svg>'+
+   '<div class="tin"><div class="tphase" id="t-phase"></div><div class="tbig" id="t-big"></div><div class="tsub" id="t-sub"></div></div></div>'+
+   '<div class="tdots" id="t-dots"></div>'+
+   '<div class="tbtns"><button class="tb" data-act="treset" aria-label="초기화">'+IC.reset+'</button><button class="tb main" id="t-start" data-act="tstart" aria-label="시작 또는 정지"></button><button class="tb" data-act="tskip" aria-label="건너뛰기">'+IC.skip+'</button></div><div class="tcap" id="t-cap"></div></div>'+
+   '<div class="card" id="t-log" hidden><h3>오늘 일지에 <b id="t-logmin">0</b>분 추가</h3><div class="ichips" style="margin:0"><button type="button" data-tl="pull">풀업·당기기</button><button type="button" data-tl="campus">캠퍼스·행보드</button><button type="button" data-tl="core">코어</button><button type="button" data-tl="etc">기타</button></div></div>'+
    '<div id="tcfg">'+timerCfgHtml()+'</div>'}
 document.addEventListener('visibilitychange',function(){if(!document.hidden&&T.run){wake();tmrTick()}});
 
@@ -847,10 +852,11 @@ document.addEventListener('input',function(e){
   else if(t.dataset.i){setPath(S.draft.items,t.dataset.i,t.value);touched()}
 });
 document.addEventListener('click',function(e){
-  var el=e.target.closest('[data-act],[data-tab],[data-date],[data-mem],[data-v],[data-chip],[data-item],[data-memday],[data-step],[data-mf],[data-qr],[data-gr],[data-tp],[data-ts],[data-tr]');if(!el)return;
-  if(el.dataset.tp){if(tmrLocked()){toast('초기화한 뒤에 바꿀 수 있어요');return}T.cfg=JSON.parse(JSON.stringify(TP[+el.dataset.tp][1]));tmrCfgSave();tmrRefreshCfg();return}
-  if(el.dataset.tr){if(tmrLocked()){toast('초기화한 뒤에 바꿀 수 있어요');return}T.cfg.rest=+el.dataset.tr;tmrCfgSave();tmrRefreshCfg();return}
+  var el=e.target.closest('[data-act],[data-tab],[data-date],[data-mem],[data-v],[data-chip],[data-item],[data-memday],[data-step],[data-mf],[data-qr],[data-gr],[data-ts],[data-tq],[data-tm],[data-tl]');if(!el)return;
+  if(el.dataset.tm!=null&&el.dataset.tm!==''){if(tmrLocked()){toast('초기화한 뒤에 바꿀 수 있어요');return}T.cfg.manual=el.dataset.tm==='1';tmrCfgSave();tmrRefreshCfg();return}
+  if(el.dataset.tq){if(tmrLocked()){toast('초기화한 뒤에 바꿀 수 있어요');return}var tqq=el.dataset.tq.split(':');T.cfg[tqq[0]]=+tqq[1];tmrCfgSave();tmrRefreshCfg();return}
   if(el.dataset.ts){if(tmrLocked()){toast('초기화한 뒤에 바꿀 수 있어요');return}var tsp=el.dataset.ts.split(':');var fd=TF.filter(function(f){return f[0]===tsp[0]})[0];var nv=(+T.cfg[tsp[0]]||0)+(+tsp[1])*fd[2];nv=Math.max(fd[3],Math.min(fd[4],nv));T.cfg[tsp[0]]=nv;tmrCfgSave();tmrRefreshCfg();return}
+  if(el.dataset.tl){var tk=el.dataset.tl;if(S.isAdmin)return;var tmin=Math.max(1,Math.round(T.act/60000));S.date=TODAY;S.draftKey='';ensureDraft();S.draft.items=S.draft.items||{};var prev=S.draft.items[tk];S.draft.items[tk]={min:String((prev?+prev.min||0:0)+tmin),set:prev?prev.set:'',note:prev?prev.note:''};touched();var itn=ITEMS.filter(function(x){return x[0]===tk})[0];toast('오늘 일지에 '+(itn?itn[1]:'운동')+' '+tmin+'분 추가했어요');var tg=document.getElementById('t-log');if(tg)tg.hidden=true;return}
   if(el.dataset.mf){S.mf=el.dataset.mf;render(true);return}
   if(el.dataset.qr){var cb=document.getElementById('c-body');if(cb){cb.value=el.dataset.qr;cb.focus()}return}
   if(el.dataset.step){ensureDraft();var sp=el.dataset.step.split(':');var itm=S.draft.items[sp[0]];if(!itm)return;var nm2=Math.max(0,(+itm.min||0)+(+sp[1]));itm.min=String(nm2);var inp=document.querySelector('[data-i="'+sp[0]+'.min"]');if(inp)inp.value=nm2;touched();return}
@@ -876,10 +882,8 @@ document.addEventListener('click',function(e){
   else if(a==='pushchat'){var pc=!S.push.chat;if(!S.push.sub)return;rpc('gb_push_prefs',{p_token:S.token,p_endpoint:S.push.sub.endpoint,p_chat:pc}).then(function(){S.push.chat=pc;paintPush();toast(pc?'채팅 새 글도 알려 드려요':'공지만 알려 드려요')},function(er){paintPush();fail(er)})}
   else if(a==='pushoff'){var sb=S.push.sub;var ep=sb&&sb.endpoint;Promise.resolve(sb&&sb.unsubscribe()).catch(function(){}).then(function(){return ep?rpc('gb_push_remove',{p_token:S.token,p_endpoint:ep}):null}).then(function(){S.push.on=false;S.push.sub=null;paintPush();toast('알림을 껐어요')},fail)}
   else if(a==='tstart'){tmrStart()}
-  else if(a==='tmanual'){if(tmrLocked()){toast('초기화한 뒤에 바꿀 수 있어요');tmrRefreshCfg();return}T.cfg.manual=!T.cfg.manual;tmrCfgSave();tmrRefreshCfg()}
   else if(a==='tskip'){if(T.phase==='idle'||T.phase==='done')return;if(!T.run){T.end=Date.now()}nextPhase();if(T.run)T.last=Date.now();tmrPaint()}
   else if(a==='treset'){tmrStop(false)}
-  else if(a==='tlog'){var tmin=Math.max(1,Math.round(T.act/60000));var tk=T.cfg.item;if(!tk||S.isAdmin)return;S.date=TODAY;S.draftKey='';ensureDraft();S.draft.items=S.draft.items||{};var prev=S.draft.items[tk];S.draft.items[tk]={min:String((prev?+prev.min||0:0)+tmin),set:prev?prev.set:'',note:prev?prev.note:''};touched();toast('오늘 일지에 '+tmin+'분 추가했어요');var tg=document.getElementById('t-log');if(tg)tg.hidden=true}
   else if(a==='goal'){var ng=goalN()+1;if(ng>7)ng=1;try{localStorage.setItem('gb_goal',String(ng))}catch(er){}render(true);toast('주간 목표를 '+ng+'회로 바꿨어요')}
   else if(a==='copyprev'){ensureDraft();var pd=prevItemsDay();if(!pd)return;S.draft.items=JSON.parse(JSON.stringify(S.days[pd].items));touched();render(true);toast(pd.slice(5).replace('-','/')+' 운동을 불러왔어요. 시간만 고쳐 주세요')}
   else if(a==='brag'){var tt=totals(S.days);var bm=S.brag+'! 출석 '+(tt.days+(S.days[S.date]&&S.days[S.date].attended?0:1))+'회째';el.disabled=true;
@@ -943,7 +947,7 @@ if(tok){
   rpc('gb_me',{p_token:tok}).then(function(m){onLogin(tok,m)},function(e){if(e&&e.code==='network'){S.ready=true;render();toast('인터넷 연결을 확인하세요')}else forceLogout()});
 }else{S.ready=true;render()}
 /* ---------- 자동 업데이트: 앱을 켜거나 다시 열 때마다 새 버전 확인 ---------- */
-var APP_V='gb-v18',reloading=false,pendingUpdate=false;
+var APP_V='gb-v19',reloading=false,pendingUpdate=false;
 function applyUpdate(){if(reloading)return;if(T.run){pendingUpdate=true;return}var a=document.activeElement;
   if(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)&&S.session){pendingUpdate=true;return}
   reloading=true;try{flush()}catch(e){}toast('새 버전으로 업데이트해요');setTimeout(function(){location.reload()},700)}

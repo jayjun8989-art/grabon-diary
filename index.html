@@ -253,7 +253,7 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){retur
 
 /* ---------- 서버 연결 (Supabase RPC) ---------- */
 var SB_URL='https://iknidqosbmqzgkhfaktc.supabase.co',SB_KEY='sb_publishable_lFAVbxnln3D2qTNpYEObPw_IrMj1dfo';
-var ERRS={bad_credentials:'회원번호 또는 PIN이 맞지 않아요',locked:'5번 틀려서 5분간 잠겼어요',name_mismatch:'등록된 이름과 달라요',pin_format:'PIN은 숫자 4~6자리로 정해 주세요',pin_too_short:'관리자 PIN은 6자 이상이어야 해요',unauthorized:'다시 로그인해 주세요',forbidden:'권한이 없어요',empty:'회원번호와 이름을 입력하세요',not_found:'회원을 찾을 수 없어요',slow_down:'조금 천천히 보내 주세요',bad_message:'메시지는 1~500자로 써 주세요'};
+var ERRS={bad_credentials:'회원번호 또는 PIN이 맞지 않아요',locked:'5번 틀려서 5분간 잠겼어요',name_mismatch:'등록된 이름과 달라요',pin_format:'PIN은 숫자 4~6자리로 정해 주세요',pin_too_short:'관리자 PIN은 6자 이상이어야 해요',unauthorized:'다시 로그인해 주세요',forbidden:'권한이 없어요',empty:'회원번호와 이름을 입력하세요',not_found:'회원을 찾을 수 없어요',inactive:'이용권이 끝났어요. 센터에 문의해 주세요',slow_down:'조금 천천히 보내 주세요',bad_message:'메시지는 1~500자로 써 주세요'};
 function rpc(fn,args){
   return fetch(SB_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify(args||{})})
    .then(function(r){return r.text().then(function(t){var j=null;try{j=t?JSON.parse(t):null}catch(e){}
@@ -445,7 +445,7 @@ function viewMembers(){
   var F=function(k,l){return '<button data-mf="'+k+'" aria-pressed="'+(S.mf===k)+'">'+l+'</button>'};
   var h='<h2>회원 관리</h2>'+noticeHtml()+'<div class="stats" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div class="stat"><b>'+tc+'</b><span>오늘 출석</span></div><div class="stat"><b>'+avgRate()+'%</b><span>평균 출석률(이번 달 출석 회원)</span></div><div class="stat"><b>'+ic+'</b><span>7일 이상 미출석</span></div><div class="stat"><b>'+uc+'</b><span>본인 확인 대기</span></div></div>'+
    '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn acc sm" data-act="newnotice" style="flex:1">공지 올리기</button></div><input id="m-search" type="text" placeholder="이름 또는 회원번호 검색" value="'+esc(S.msearch)+'" style="margin-top:12px"><div class="filt">'+F('all','전체 '+S.roster.length)+F('today','오늘 출석')+F('inactive','7일 미출석')+F('unconf','확인 대기')+'</div><div id="mlist">'+memListHtml()+'</div>';
-  h+='<div class="card"><h3>회원 등록</h3><p class="sub" style="margin:0">회원은 <b>그랩온 회원관리 프로그램</b>에서만 등록하세요. 등록하면 이 앱에 자동으로 나타나요. 회원은 프로그램의 회원번호와 이름으로 처음 로그인하면서 PIN을 정합니다.</p></div>';
+  h+='<div class="card"><h3>회원 등록</h3><p class="sub" style="margin:0">회원은 <b>그랩온 회원관리 프로그램</b>에서만 등록하세요. 이용 중인 회원이 이 앱에 자동으로 나타나고, 이용권이 끝난 회원은 자동으로 빠져요. 재등록하면 다시 나타나요. 회원은 프로그램의 회원번호와 이름으로 처음 로그인하면서 PIN을 정합니다.</p></div>';
   return h;
 }
 function viewMember(){
@@ -794,7 +794,7 @@ if(tok){
   rpc('gb_me',{p_token:tok}).then(function(m){onLogin(tok,m)},function(e){if(e&&e.code==='network'){S.ready=true;render();toast('인터넷 연결을 확인하세요')}else forceLogout()});
 }else{S.ready=true;render()}
 /* ---------- 자동 업데이트: 앱을 켜거나 다시 열 때마다 새 버전 확인 ---------- */
-var APP_V='gb-v13',reloading=false,pendingUpdate=false;
+var APP_V='gb-v14',reloading=false,pendingUpdate=false;
 function applyUpdate(){if(reloading)return;var a=document.activeElement;
   if(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)&&S.session){pendingUpdate=true;return}
   reloading=true;try{flush()}catch(e){}toast('새 버전으로 업데이트해요');setTimeout(function(){location.reload()},700)}

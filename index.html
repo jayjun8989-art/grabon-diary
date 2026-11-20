@@ -390,7 +390,7 @@ function topbar(){
 }
 function tabsHtml(){
   var role=activeRole();
-  var t=role==='admin'?[['members','회원'],['day','일간'],['matrix','출석표'],['mine','내 일지'],['chat','채팅']]:[['today','오늘'],['history','기록'],['timer','타이머'],['chat','채팅']];
+  var t=role==='admin'?[['members','회원'],['day','일간'],['matrix','출석표'],['mine','내 일지'],['timer','타이머'],['chat','채팅']]:[['today','오늘'],['history','기록'],['timer','타이머'],['chat','채팅']];
   return '<nav class="tabs"><div class="in">'+t.map(function(x){return '<button data-tab="'+x[0]+'"'+(S.tab===x[0]?' aria-current="page"':'')+'><svg viewBox="0 0 24 24" aria-hidden="true">'+ICON[x[0]]+'</svg>'+x[1]+(x[0]==='timer'&&T.run&&S.tab!=='timer'?'<span class="dot">●</span>':'')+(x[0]==='chat'&&S.chat.unread?'<span class="dot">'+(S.chat.unread>9?'9+':S.chat.unread)+'</span>':'')+'</button>'}).join('')+'</div></nav>';
 }
 function calendarHtml(map){
@@ -535,8 +535,8 @@ function render(fromMatrix){
   if(!S.session){$app.innerHTML=viewLogin();return}
   if(S.loading){$app.innerHTML=topbar()+'<div class="card sub">불러오는 중…</div>'+tabsHtml();return}
   if(role==='admin'){
-    if(['members','day','matrix','mine','chat'].indexOf(S.tab)<0)S.tab='members';
-    body=S.tab==='chat'?viewChat():S.tab==='mine'?viewHistory('내 일지'):S.tab==='day'?viewDay():S.tab==='matrix'?viewMatrix():(S.target?viewMember():viewMembers());
+    if(['members','day','matrix','mine','timer','chat'].indexOf(S.tab)<0)S.tab='members';
+    body=S.tab==='chat'?viewChat():S.tab==='timer'?viewTimer():S.tab==='mine'?viewHistory('내 일지'):S.tab==='day'?viewDay():S.tab==='matrix'?viewMatrix():(S.target?viewMember():viewMembers());
   }else{
     if(['today','history','timer','chat'].indexOf(S.tab)<0)S.tab='today';
     body=S.tab==='chat'?viewChat():S.tab==='timer'?viewTimer():S.tab==='history'?viewHistory():viewToday();
@@ -803,7 +803,7 @@ function tmrPaint(){var c=document.getElementById('tmr');if(!c)return;c.setAttri
   q('t-phase',tmrLabel());q('t-big',tmrBig());q('t-sub',tmrSub());
   var bar=document.getElementById('t-bar');if(bar){var pc=(T.phase==='idle'||T.phase==='done'||!T.dur||tmrManual())?100:Math.max(0,Math.min(100,T.left/T.dur*100));bar.style.width=pc+'%'}
   q('t-start',tmrBtnLabel());
-  var lg=document.getElementById('t-log');if(lg)lg.hidden=!(T.phase==='done'&&T.act>=60000&&T.cfg.item)}
+  var lg=document.getElementById('t-log');if(lg)lg.hidden=!(T.phase==='done'&&T.act>=60000&&T.cfg.item&&!S.isAdmin)}
 function timerCfgHtml(){var c=T.cfg;
   var h='<div class="card"><h3>프리셋</h3><div class="ichips" style="margin:0">'+TP.map(function(x,i){return '<button type="button" data-tp="'+i+'">'+x[0]+'</button>'}).join('')+'</div></div>';
   h+='<div class="card"><h3>직접 설정'+(c.manual?'':' <span class="pill">총 '+fmtT(tmrTotal(c))+'</span>')+'</h3>'+
@@ -863,7 +863,7 @@ document.addEventListener('click',function(e){
     var cur=k.indexOf('cond.')===0?S.draft.cond[k.slice(5)]:S.draft[k];var nv=cur===v?0:v;
     if(k.indexOf('cond.')===0)S.draft.cond[k.slice(5)]=nv;else S.draft[k]=nv;
     [].forEach.call(el.parentNode.children,function(b){b.setAttribute('aria-pressed',String(+b.dataset.v===nv))});touched();return}
-  if(el.dataset.tab){flush();S.tab=el.dataset.tab;S.draftKey='';if(S.tab==='history'||S.tab==='mine')loadLb();if(S.tab==='today')loadFeed();if(S.tab==='chat'){chatReload()}if(S.isAdmin&&S.tab==='mine'){S.target='__admin';S.date=TODAY;S.month=TODAY.slice(0,7);watchTarget()}else if(S.isAdmin){S.target=null;S.seq++;S.loading=false;loadAll();render()}else{S.date=(S.tab==='today')?TODAY:S.date;render()}window.scrollTo(0,0);return}
+  if(el.dataset.tab){flush();S.tab=el.dataset.tab;S.draftKey='';if(S.tab==='history'||S.tab==='mine')loadLb();if(S.tab==='today')loadFeed();if(S.tab==='chat'){chatReload()}if(S.isAdmin&&S.tab==='mine'){S.target='__admin';S.date=TODAY;S.month=TODAY.slice(0,7);watchTarget()}else if(S.isAdmin&&S.tab==='timer'){S.target=null;S.seq++;S.loading=false;render()}else if(S.isAdmin){S.target=null;S.seq++;S.loading=false;loadAll();render()}else{S.date=(S.tab==='today')?TODAY:S.date;render()}window.scrollTo(0,0);return}
   if(el.dataset.date){flush();S.date=el.dataset.date;S.draftKey='';render();var ed=document.getElementById('editor');if(ed)ed.scrollIntoView({behavior:'smooth',block:'start'});return}
   if(el.dataset.mem){flush();S.target=el.dataset.mem;S.date=TODAY;S.month=TODAY.slice(0,7);watchTarget();window.scrollTo(0,0);return}
   var a=el.dataset.act;
@@ -943,7 +943,7 @@ if(tok){
   rpc('gb_me',{p_token:tok}).then(function(m){onLogin(tok,m)},function(e){if(e&&e.code==='network'){S.ready=true;render();toast('인터넷 연결을 확인하세요')}else forceLogout()});
 }else{S.ready=true;render()}
 /* ---------- 자동 업데이트: 앱을 켜거나 다시 열 때마다 새 버전 확인 ---------- */
-var APP_V='gb-v17',reloading=false,pendingUpdate=false;
+var APP_V='gb-v18',reloading=false,pendingUpdate=false;
 function applyUpdate(){if(reloading)return;if(T.run){pendingUpdate=true;return}var a=document.activeElement;
   if(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)&&S.session){pendingUpdate=true;return}
   reloading=true;try{flush()}catch(e){}toast('새 버전으로 업데이트해요');setTimeout(function(){location.reload()},700)}

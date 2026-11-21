@@ -517,6 +517,15 @@ html[data-skin="cute"] .seg button[aria-pressed=true]{background:var(--accent);c
 html[data-skin="cute"] .tset .st button,html[data-skin="cute"] .mnav button,html[data-skin="cute"] .dnav button{border:2px solid var(--line);border-radius:50%}
 html[data-skin="cute"] .logo,html[data-skin="cute"] .hero{border-radius:50%}
 html[data-skin="cute"] .logo{width:40px;height:40px}
+
+/* ---- 그립이 (귀여운 버전에서만 보임) ---- */
+.tmasbox,.cutechat,.mas-s{display:none}
+html[data-skin="cute"] .tmasbox{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 0 10px}
+html[data-skin="cute"] .tbub{background:var(--tbtn);color:inherit;border-radius:99px;padding:8px 14px;font-size:15px;font-weight:700}
+html[data-skin="cute"] .tbub::before{content:"";display:none}
+html[data-skin="cute"] .cutechat{display:flex;align-items:center;gap:10px;margin-top:14px}
+html[data-skin="cute"] .tbub2{background:var(--soft);color:var(--ink);border-radius:20px 20px 20px 6px;padding:10px 14px;font-size:15px;font-weight:600;border:2px solid var(--line)}
+html[data-skin="cute"] .mas-s{display:inline-flex;vertical-align:middle}
 </style>
 </head><body>
 <div class="wrap" id="app"><div class="center"><h2>불러오는 중…</h2></div></div>
@@ -923,15 +932,15 @@ function loadPass(uid){S.pass=null;var el0=document.getElementById('passbox');if
 function mineMsg(m){return S.isAdmin?m.is_admin:(!m.is_admin&&m.num===S.uid)}
 function chatListHtml(){var c=S.chat;
   if(!c.loaded)return '<p class="sub">불러오는 중…</p>';
-  if(!c.msgs.length)return '<p class="sub" style="text-align:center;margin:0">아직 메시지가 없어요. 첫 글을 남겨 보세요.</p>';
+  if(!c.msgs.length)return '<div style="text-align:center"><span class="mas-s" style="display:none">'+masSvg('smile',54)+'</span><p class="sub" style="margin:0">아직 메시지가 없어요. 첫 글을 남겨 보세요.</p></div>';
   return c.msgs.map(function(m){var mine=mineMsg(m);
     var t=new Date(m.created_at).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
     var act='';if(S.isAdmin)act+='<button class="lnk" data-act="chatpin" data-id="'+m.id+'" data-pin="'+(m.pinned?0:1)+'">'+(m.pinned?'고정 해제':'공지로 고정')+'</button>';
     if(S.isAdmin||mine)act+='<button class="lnk" data-act="chatdel" data-id="'+m.id+'">삭제</button>';
-    return '<div class="msg'+(mine?' mine':'')+(m.is_notice?' notice':'')+'"><div class="mh"><b>'+esc(m.name)+'</b>'+(m.is_admin?'<span class="pill acc">관리자</span>':'')+(m.is_notice?'<span class="pill warn">공지</span>':'')+(m.pinned?'<span class="pill">고정</span>':'')+'<span>'+t+'</span></div><div class="mb">'+esc(m.body)+'</div>'+(act?'<div class="ma">'+act+'</div>':'')+'</div>'}).join('');
+    return '<div class="msg'+(mine?' mine':'')+(m.is_notice?' notice':'')+'"><div class="mh">'+(m.is_notice?'<span class="mas-s">'+masSvg('smile',22)+'</span>':'')+'<b>'+esc(m.name)+'</b>'+(m.is_admin?'<span class="pill acc">관리자</span>':'')+(m.is_notice?'<span class="pill warn">공지</span>':'')+(m.pinned?'<span class="pill">고정</span>':'')+'<span>'+t+'</span></div><div class="mb">'+esc(m.body)+'</div>'+(act?'<div class="ma">'+act+'</div>':'')+'</div>'}).join('');
 }
 function viewChat(){
-  return noticeHtml()+
+  return '<div class="cutechat"><span>'+masSvg('smile',44)+'</span><div class="tbub2">오늘 운동 인증하고 서로 응원해요!</div></div>'+noticeHtml()+
    '<div class="card"><div id="chatlist">'+chatListHtml()+'</div></div>'+
    '<div class="card"><div class="qr">'+['오늘 갑니다','출석 완료','같이 운동해요','화이팅'].map(function(x){return '<button data-qr="'+x+'">'+x+'</button>'}).join('')+'</div><textarea id="c-body" maxlength="500" placeholder="메시지를 입력하세요 (500자까지)" style="min-height:70px"></textarea>'+
    (S.isAdmin?'<label class="check" style="margin:10px 0 0"><input type="checkbox" id="c-notice">공지로 올리기 (모든 회원 화면 위에 고정)</label>':'')+
@@ -1056,6 +1065,7 @@ function tmrPaint(){var c=document.getElementById('tmr');if(!c)return;c.setAttri
   var arc=document.getElementById('t-arc');if(arc){var pc=(T.phase==='idle'||T.phase==='done'||!T.dur||tmrManual())?1:Math.max(0,Math.min(1,T.left/T.dur));arc.style.strokeDashoffset=String(553*(1-pc))}
   var mb=document.getElementById('t-start');if(mb)mb.innerHTML=(T.run&&tmrManual())?IC.check:(T.run?IC.pause:IC.play);
   var dots=document.getElementById('t-dots');if(dots){var n=T.cfg.sets;if(n>14){dots.innerHTML=''}else{var h='';for(var k=1;k<=n;k++){var cls=(T.phase==='done'||k<T.set||(k===T.set&&T.phase==='rest'))?'d':(k===T.set&&(T.phase==='work'))?'c':'';h+='<i class="'+cls+'"></i>'}dots.innerHTML=h}}
+  var tm=document.getElementById('t-mas');if(tm&&skin()==='cute'){var kd=T.phase==='work'?'work':(T.phase==='rest'?'rest':(T.phase==='done'?'done':'smile'));var tx=T.phase==='idle'?'준비됐어요?':T.phase==='ready'?'곧 시작해요!':T.phase==='work'?(T.run?'힘내요! 할 수 있어요':'잠깐 쉬는 중?'):T.phase==='rest'?(T.run?'푹 쉬어요':'잠깐 멈췄어요'):'수고했어요! 최고예요';if(tm.getAttribute('data-k')!==kd){tm.innerHTML=masSvg(kd,54);tm.setAttribute('data-k',kd)}q('t-bub',tx)}
   var lg=document.getElementById('t-log');if(lg){lg.hidden=!(T.phase==='done'&&T.act>=60000&&!S.isAdmin);q('t-logmin',Math.max(1,Math.round(T.act/60000)))}}
 function timerCfgHtml(){var c=T.cfg;
   var h='<div class="card"><div class="seg" role="group" aria-label="운동 끝내는 방식"><button type="button" data-tm="0" aria-pressed="'+(!c.manual)+'">시간으로</button><button type="button" data-tm="1" aria-pressed="'+(!!c.manual)+'">버튼으로</button></div>'+
@@ -1067,7 +1077,7 @@ function timerCfgHtml(){var c=T.cfg;
 function tmrRefreshCfg(){var tc=document.getElementById('tcfg');if(tc)tc.innerHTML=timerCfgHtml();T.phase='idle';T.left=T.cfg.work;T.set=1;tmrPaint()}
 function tmrLocked(){return T.phase!=='idle'&&T.phase!=='done'}
 function viewTimer(){
-  return '<div class="tmr card" id="tmr" data-ph="'+T.phase+'" style="margin-top:14px"><div class="tface"><svg class="tring" viewBox="0 0 200 200" aria-hidden="true"><circle class="trk" cx="100" cy="100" r="88"/><circle class="arc" id="t-arc" cx="100" cy="100" r="88" transform="rotate(-90 100 100)"/></svg>'+
+  return '<div class="tmr card" id="tmr" data-ph="'+T.phase+'" style="margin-top:14px"><div class="tmasbox"><span id="t-mas"></span><span class="tbub" id="t-bub"></span></div><div class="tface"><svg class="tring" viewBox="0 0 200 200" aria-hidden="true"><circle class="trk" cx="100" cy="100" r="88"/><circle class="arc" id="t-arc" cx="100" cy="100" r="88" transform="rotate(-90 100 100)"/></svg>'+
    '<button class="tin" type="button" data-act="tstart" aria-label="시작 또는 일시정지"><span class="tphase" id="t-phase"></span><span class="tbig" id="t-big"></span><span class="thint" id="t-sub"></span></button></div>'+
    '<div class="tsum" id="t-sum"></div>'+
    '<div class="tdots" id="t-dots"></div>'+
@@ -1199,6 +1209,15 @@ if(tok){
 }else{S.ready=true;render()}
 /* ---------- 간지 / 귀여움 버전 ---------- */
 var MAS='<svg width="46" height="46" viewBox="0 0 60 60"><path d="M12 36C8 20 22 8 34 10C48 12 54 26 50 38C47 50 30 54 20 50C14 48 13 42 12 36Z" fill="var(--masc,#FF9E7A)"/><circle cx="24" cy="29" r="2.8" fill="#2A1D1A"/><circle cx="38" cy="29" r="2.8" fill="#2A1D1A"/><path d="M26 37Q31 42 36 37" fill="none" stroke="#2A1D1A" stroke-width="2.2" stroke-linecap="round"/><circle cx="19" cy="36" r="3" fill="#FF7A8A" opacity=".45"/><circle cx="43" cy="36" r="3" fill="#FF7A8A" opacity=".45"/></svg>';
+function masSvg(kind,sz){
+  var body='<path d="M12 36C8 20 22 8 34 10C48 12 54 26 50 38C47 50 30 54 20 50C14 48 13 42 12 36Z" fill="var(--masc,#FF9E7A)"/>';
+  var cheeks='<circle cx="19" cy="36" r="3" fill="#FF7A8A" opacity=".45"/><circle cx="43" cy="36" r="3" fill="#FF7A8A" opacity=".45"/>';
+  var d='#2A1D1A',face;
+  if(kind==='work')face='<path d="M20.5 25.5L27.5 29L20.5 32.5M41.5 25.5L34.5 29L41.5 32.5" fill="none" stroke="'+d+'" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M25 37Q31 47 37 37Z" fill="'+d+'"/><path d="M28 42.5Q31 45.5 34 42.5" fill="#FF7A8A"/>';
+  else if(kind==='rest')face='<path d="M20.5 30Q24 26 27.5 30M34.5 30Q38 26 41.5 30" fill="none" stroke="'+d+'" stroke-width="2.2" stroke-linecap="round"/><path d="M26 38Q31 42 36 38" fill="none" stroke="'+d+'" stroke-width="2.2" stroke-linecap="round"/>';
+  else if(kind==='done')face='<path d="M20.5 31L24 26.5L27.5 31M34.5 31L38 26.5L41.5 31" fill="none" stroke="'+d+'" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24.5 36Q31 47 37.5 36Z" fill="'+d+'"/><path d="M28 42Q31 45 34 42" fill="#FF7A8A"/>';
+  else face='<circle cx="24" cy="29" r="2.8" fill="'+d+'"/><circle cx="38" cy="29" r="2.8" fill="'+d+'"/><path d="M26 37Q31 42 36 37" fill="none" stroke="'+d+'" stroke-width="2.2" stroke-linecap="round"/>';
+  return '<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 60 60" aria-hidden="true">'+body+face+cheeks+'</svg>'}
 function skin(){try{return localStorage.getItem('gb_skin')==='cute'?'cute':'cool'}catch(e){return 'cool'}}
 function applySkin(){var k=skin();document.documentElement.setAttribute('data-skin',k);var m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',k==='cute'?'#FFE3D3':'#000000')}
 function skinBtn(){return '<button class="btn ghost sm" data-act="skin" aria-label="화면 분위기 바꾸기">'+(skin()==='cute'?'간지 버전':'귀여운 버전')+'</button>'}
@@ -1210,7 +1229,7 @@ function applyFs(){var z=FS[fsLevel()];document.documentElement.style.zoom=Strin
 function fsBtn(){return '<button class="btn ghost sm fsb" data-act="fs" aria-label="글씨 크기 바꾸기. 지금은 '+FSN[fsLevel()]+'"><i style="font-size:13px">가</i><i style="font-size:20px">가</i><span style="margin-left:6px">글씨 크기</span></button>'}
 applyFs();
 /* ---------- 자동 업데이트: 앱을 켜거나 다시 열 때마다 새 버전 확인 ---------- */
-var APP_V='gb-v27',reloading=false,pendingUpdate=false;
+var APP_V='gb-v28',reloading=false,pendingUpdate=false;
 function applyUpdate(){if(reloading)return;if(T.run){pendingUpdate=true;return}var a=document.activeElement;
   if(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)&&S.session){pendingUpdate=true;return}
   reloading=true;try{flush()}catch(e){}toast('새 버전으로 업데이트해요');setTimeout(function(){location.reload()},700)}

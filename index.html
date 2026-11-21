@@ -565,6 +565,11 @@ html[data-skin="cute"][data-pal="jelly"] .hero2 .hi{color:#FFFFFF}
 html[data-skin="cute"] .sheet .sp{border-radius:30px 30px 0 0}
 html[data-skin="cute"] .seg3 button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink)}
 html[data-skin="cute"] .pal[aria-pressed=true]{border-color:var(--accent)}
+
+.chars{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.chb{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 2px 6px;border:2px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);font-size:12.5px;font-weight:700;line-height:1.2}
+.chb[aria-pressed=true]{border-color:var(--accent)}
+.chb .cp{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;overflow:hidden}
 </style>
 </head><body>
 <div class="wrap" id="app"><div class="center"><h2>불러오는 중…</h2></div></div>
@@ -889,7 +894,7 @@ function heroHtml(){
   var cute0=(skin()==='cute');var hi=cute0?(wc>=g?[nm+'님,','목표 달성! 짱이에요']:att?[nm+'님,','오늘도 잡았어요!']:st>0?['연속 '+st+'일째!','오늘도 같이 해요']:hr<11?[nm+'님,','좋은 아침이에요']:[nm+'님,','오늘 한 번 잡아볼까요?']):(wc>=g?[nm+'님,','이번 주 목표 달성!']:att?[nm+'님,','오늘도 장악 완료']:st>0?['연속 '+st+'일,','오늘 끊기지 않게']:hr<11?[nm+'님,','좋은 아침이에요']:[nm+'님,','오늘 한 번만 잡아요']);
   var cute=(skin()==='cute');var hs=cute?(wc>=g?'보너스 라운드, 가볼까요?':att?'손바닥이 단단해졌어요':'출석부터 눌러 볼까요?'):(wc>=g?'이제부터는 보너스 라운드예요':att?'손바닥이 한 겹 더 단단해졌어요':'나머지는 손이 알아서 해요. 출석부터 눌러요');
   var wsn=weekStreak(map,g);
-  return '<div class="hero2"><div class="top"><div><span class="mas" aria-hidden="true">'+MAS+'</span><div class="hi"><span class="nb">'+esc(hi[0])+'</span> <span class="nb">'+esc(hi[1])+'</span></div><div class="hs">'+esc(hs)+'</div></div>'+
+  return '<div class="hero2"><div class="top"><div><span class="mas" aria-hidden="true">'+masSvg('smile',54)+'</span><div class="hi"><span class="nb">'+esc(hi[0])+'</span> <span class="nb">'+esc(hi[1])+'</span></div><div class="hs">'+esc(hs)+'</div></div>'+
    '<button class="ringbtn" data-act="goal" aria-label="활동 링. 눌러서 주간 목표 바꾸기 (현재 주 '+g+'회)"><svg viewBox="0 0 100 100">'+ringArc(44,6,wc/g,'var(--ring1)')+ringArc(33,6,tmin/60,'var(--ring2)')+ringArc(22,6,tk/400,'var(--ring3)')+'</svg></button></div>'+
    '<div class="rl"><i style="color:var(--ring1)">●</i> 이번 주 '+wc+'/'+g+'회 &nbsp;<i style="color:var(--ring2)">●</i> 오늘 '+tmin+'/60분 &nbsp;<i style="color:var(--ring3)">●</i> 오늘 '+Math.round(tk)+'/400kcal</div>'+
    '<div class="hstats"><div><b><svg class="flame" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 5 6 5 11a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-4-1-6 1-10z"/></svg>'+st+'</b><span>연속 출석</span></div><div><b>'+attRate(map,TODAY.slice(0,7))+'%</b><span>출석률</span></div><div><b>'+Math.round(mk).toLocaleString('ko-KR')+'</b><span>이번 달 kcal</span></div></div>'+
@@ -1104,7 +1109,7 @@ function tmrPaint(){var c=document.getElementById('tmr');if(!c)return;c.setAttri
   var arc=document.getElementById('t-arc');if(arc){var pc=(T.phase==='idle'||T.phase==='done'||!T.dur||tmrManual())?1:Math.max(0,Math.min(1,T.left/T.dur));arc.style.strokeDashoffset=String(553*(1-pc))}
   var mb=document.getElementById('t-start');if(mb)mb.innerHTML=(T.run&&tmrManual())?IC.check:(T.run?IC.pause:IC.play);
   var dots=document.getElementById('t-dots');if(dots){var n=T.cfg.sets;if(n>14){dots.innerHTML=''}else{var h='';for(var k=1;k<=n;k++){var cls=(T.phase==='done'||k<T.set||(k===T.set&&T.phase==='rest'))?'d':(k===T.set&&(T.phase==='work'))?'c':'';h+='<i class="'+cls+'"></i>'}dots.innerHTML=h}}
-  var tm=document.getElementById('t-mas');if(tm&&skin()==='cute'){var kd=T.phase==='work'?'work':(T.phase==='rest'?'rest':(T.phase==='done'?'done':'smile'));var tx=T.phase==='idle'?'준비됐어요?':T.phase==='ready'?'곧 시작해요!':T.phase==='work'?(T.run?'힘내요! 할 수 있어요':'잠깐 쉬는 중?'):T.phase==='rest'?(T.run?'푹 쉬어요':'잠깐 멈췄어요'):'수고했어요! 최고예요';if(tm.getAttribute('data-k')!==kd){tm.innerHTML=masSvg(kd,54);tm.setAttribute('data-k',kd)}q('t-bub',tx)}
+  var tm=document.getElementById('t-mas');if(tm&&skin()==='cute'){var kd=T.phase==='work'?'work':(T.phase==='rest'?'rest':(T.phase==='done'?'done':'smile'));var tx=T.phase==='idle'?'준비됐어요?':T.phase==='ready'?'곧 시작해요!':T.phase==='work'?(T.run?'힘내요! 할 수 있어요':'잠깐 쉬는 중?'):T.phase==='rest'?(T.run?'푹 쉬어요':'잠깐 멈췄어요'):'수고했어요! 최고예요';if(tm.getAttribute('data-k')!==kd+partner()){tm.innerHTML=masSvg(kd,58);tm.setAttribute('data-k',kd+partner())}q('t-bub',tx)}
   var lg=document.getElementById('t-log');if(lg){lg.hidden=!(T.phase==='done'&&T.act>=60000&&!S.isAdmin);q('t-logmin',Math.max(1,Math.round(T.act/60000)))}}
 function timerCfgHtml(){var c=T.cfg;
   var h='<div class="card"><div class="seg" role="group" aria-label="운동 끝내는 방식"><button type="button" data-tm="0" aria-pressed="'+(!c.manual)+'">시간으로</button><button type="button" data-tm="1" aria-pressed="'+(!!c.manual)+'">버튼으로</button></div>'+
@@ -1150,7 +1155,8 @@ document.addEventListener('input',function(e){
   else if(t.dataset.i){setPath(S.draft.items,t.dataset.i,t.value);touched()}
 });
 document.addEventListener('click',function(e){
-  var el=e.target.closest('[data-act],[data-tab],[data-date],[data-mem],[data-v],[data-chip],[data-item],[data-memday],[data-step],[data-mf],[data-qr],[data-gr],[data-ts],[data-tq],[data-tm],[data-tl],[data-sk],[data-sp],[data-sf]');if(!el)return;
+  var el=e.target.closest('[data-act],[data-tab],[data-date],[data-mem],[data-v],[data-chip],[data-item],[data-memday],[data-step],[data-mf],[data-qr],[data-gr],[data-ts],[data-tq],[data-tm],[data-tl],[data-sk],[data-sp],[data-sf],[data-sc]');if(!el)return;
+  if(el.dataset.sc){try{localStorage.setItem('gb_char',el.dataset.sc)}catch(er){}render(true);var cn=CH.filter(function(c){return c[0]===el.dataset.sc})[0];toast('짝꿍: '+(cn?cn[1]:''));return}
   if(el.dataset.sk){try{localStorage.setItem('gb_skin',el.dataset.sk)}catch(er){}applySkin();render(true);return}
   if(el.dataset.sp){try{localStorage.setItem('gb_pal_'+skin(),el.dataset.sp)}catch(er){}applySkin();render(true);return}
   if(el.dataset.sf){try{localStorage.setItem('gb_fs',el.dataset.sf)}catch(er){}applyFs();render(true);return}
@@ -1253,15 +1259,26 @@ if(tok){
 }else{S.ready=true;render()}
 /* ---------- 간지 / 귀여움 버전 ---------- */
 var MAS='<svg width="46" height="46" viewBox="0 0 60 60"><path d="M12 36C8 20 22 8 34 10C48 12 54 26 50 38C47 50 30 54 20 50C14 48 13 42 12 36Z" fill="var(--masc,#FF9E7A)"/><circle cx="24" cy="29" r="2.8" fill="#2A1D1A"/><circle cx="38" cy="29" r="2.8" fill="#2A1D1A"/><path d="M26 37Q31 42 36 37" fill="none" stroke="#2A1D1A" stroke-width="2.2" stroke-linecap="round"/><circle cx="19" cy="36" r="3" fill="#FF7A8A" opacity=".45"/><circle cx="43" cy="36" r="3" fill="#FF7A8A" opacity=".45"/></svg>';
-function masSvg(kind,sz){
-  var body='<path d="M12 36C8 20 22 8 34 10C48 12 54 26 50 38C47 50 30 54 20 50C14 48 13 42 12 36Z" fill="var(--masc,#FF9E7A)"/>';
-  var cheeks='<circle cx="19" cy="36" r="3" fill="#FF7A8A" opacity=".45"/><circle cx="43" cy="36" r="3" fill="#FF7A8A" opacity=".45"/>';
-  var d='#2A1D1A',face;
-  if(kind==='work')face='<path d="M20.5 25.5L27.5 29L20.5 32.5M41.5 25.5L34.5 29L41.5 32.5" fill="none" stroke="'+d+'" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M25 37Q31 47 37 37Z" fill="'+d+'"/><path d="M28 42.5Q31 45.5 34 42.5" fill="#FF7A8A"/>';
-  else if(kind==='rest')face='<path d="M20.5 30Q24 26 27.5 30M34.5 30Q38 26 41.5 30" fill="none" stroke="'+d+'" stroke-width="2.2" stroke-linecap="round"/><path d="M26 38Q31 42 36 38" fill="none" stroke="'+d+'" stroke-width="2.2" stroke-linecap="round"/>';
-  else if(kind==='done')face='<path d="M20.5 31L24 26.5L27.5 31M34.5 31L38 26.5L41.5 31" fill="none" stroke="'+d+'" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24.5 36Q31 47 37.5 36Z" fill="'+d+'"/><path d="M28 42Q31 45 34 42" fill="#FF7A8A"/>';
-  else face='<circle cx="24" cy="29" r="2.8" fill="'+d+'"/><circle cx="38" cy="29" r="2.8" fill="'+d+'"/><path d="M26 37Q31 42 36 37" fill="none" stroke="'+d+'" stroke-width="2.2" stroke-linecap="round"/>';
-  return '<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 60 60" aria-hidden="true">'+body+face+cheeks+'</svg>'}
+var CH=[
+ ['grip','그립이','#FFE3D3','<g transform="translate(6,6) scale(1.5)"><path d="M12 36C8 20 22 8 34 10C48 12 54 26 50 38C47 50 30 54 20 50C14 48 13 42 12 36Z" fill="var(--masc,#FF9E7A)"/><circle cx="28" cy="20" r="3.2" fill="#000" opacity=".12"/></g>',50,56,1.15],
+ ['chalk','초크','#EFEAF7','<circle cx="29" cy="62" r="15" fill="#FBF8F3" stroke="#DCD5CA" stroke-width="2"/><circle cx="71" cy="62" r="15" fill="#FBF8F3" stroke="#DCD5CA" stroke-width="2"/><circle cx="41" cy="38" r="15" fill="#FBF8F3" stroke="#DCD5CA" stroke-width="2"/><circle cx="60" cy="38" r="13" fill="#FBF8F3" stroke="#DCD5CA" stroke-width="2"/><circle cx="50" cy="58" r="27" fill="#FBF8F3" stroke="#DCD5CA" stroke-width="2"/><circle cx="50" cy="58" r="25.5" fill="#FBF8F3"/><circle cx="78" cy="30" r="2.5" fill="#CFC6D8"/><circle cx="24" cy="30" r="2" fill="#CFC6D8"/><circle cx="84" cy="44" r="1.8" fill="#CFC6D8"/>',50,58,1.1],
+ ['cara','카라','#DCEBFF','<rect x="24" y="20" width="52" height="62" rx="26" fill="none" stroke="#6FA3F0" stroke-width="13"/><rect x="70" y="40" width="12" height="22" rx="5" fill="#A9C9F7"/>',50,52,.85],
+ ['boulder','볼더','#E6EFE0','<path d="M16 72Q12 46 30 33Q44 20 62 26Q86 32 86 56Q88 76 70 82L30 82Q18 82 16 72Z" fill="#B9B3AA"/><path d="M30 33Q44 20 62 26Q52 38 42 35Q36 40 30 33Z" fill="#8FC98B"/><path d="M60 27Q74 30 80 42Q70 40 64 34Z" fill="#8FC98B"/>',52,60,1.15],
+ ['hand','장악이','#FFE7DC','<rect x="30" y="52" width="42" height="34" rx="14" fill="#FFCDB0"/><rect x="31" y="26" width="9" height="34" rx="4.5" fill="#FFCDB0"/><rect x="42" y="20" width="9" height="40" rx="4.5" fill="#FFCDB0"/><rect x="53" y="22" width="9" height="38" rx="4.5" fill="#FFCDB0"/><rect x="64" y="30" width="9" height="32" rx="4.5" fill="#FFCDB0"/><rect x="16" y="54" width="9" height="26" rx="4.5" fill="#FFCDB0" transform="rotate(-32 20 66)"/>',51,66,1.05]
+];
+function partner(){try{var v=localStorage.getItem('gb_char');return CH.some(function(c){return c[0]===v})?v:'grip'}catch(e){return 'grip'}}
+function chFace(kind,x,y,k){
+  var d='#2A1D1A',e=7*k,ey=y-2*k,my=y+6*k,pink='#FF7A8A';
+  var cheeks='<circle cx="'+(x-12*k)+'" cy="'+(y+5*k)+'" r="'+3.2*k+'" fill="'+pink+'" opacity=".45"/><circle cx="'+(x+12*k)+'" cy="'+(y+5*k)+'" r="'+3.2*k+'" fill="'+pink+'" opacity=".45"/>';
+  var sw='stroke="'+d+'" stroke-width="'+2.3*k+'" stroke-linecap="round" stroke-linejoin="round" fill="none"';
+  var L=x-e,R=x+e,eyes,mouth;
+  if(kind==='work'){eyes='<path d="M'+(L-4*k)+' '+(ey-3.5*k)+'L'+(L+3*k)+' '+ey+'L'+(L-4*k)+' '+(ey+3.5*k)+'M'+(R+4*k)+' '+(ey-3.5*k)+'L'+(R-3*k)+' '+ey+'L'+(R+4*k)+' '+(ey+3.5*k)+'" '+sw+'/>';mouth='<path d="M'+(x-5*k)+' '+(my-1*k)+'Q'+x+' '+(my+10*k)+' '+(x+5*k)+' '+(my-1*k)+'Z" fill="'+d+'"/><path d="M'+(x-2.4*k)+' '+(my+5.4*k)+'Q'+x+' '+(my+7.6*k)+' '+(x+2.4*k)+' '+(my+5.4*k)+'" fill="'+pink+'"/>'}
+  else if(kind==='rest'){eyes='<path d="M'+(L-3.5*k)+' '+ey+'Q'+L+' '+(ey-4*k)+' '+(L+3.5*k)+' '+ey+'M'+(R-3.5*k)+' '+ey+'Q'+R+' '+(ey-4*k)+' '+(R+3.5*k)+' '+ey+'" '+sw+'/>';mouth='<path d="M'+(x-4.5*k)+' '+my+'Q'+x+' '+(my+4.5*k)+' '+(x+4.5*k)+' '+my+'" '+sw+'/>'}
+  else if(kind==='done'){eyes='<path d="M'+(L-3.5*k)+' '+(ey+2*k)+'L'+L+' '+(ey-2.5*k)+'L'+(L+3.5*k)+' '+(ey+2*k)+'M'+(R-3.5*k)+' '+(ey+2*k)+'L'+R+' '+(ey-2.5*k)+'L'+(R+3.5*k)+' '+(ey+2*k)+'" '+sw+'/>';mouth='<path d="M'+(x-6*k)+' '+(my-1*k)+'Q'+x+' '+(my+11*k)+' '+(x+6*k)+' '+(my-1*k)+'Z" fill="'+d+'"/><path d="M'+(x-3*k)+' '+(my+6*k)+'Q'+x+' '+(my+8.6*k)+' '+(x+3*k)+' '+(my+6*k)+'" fill="'+pink+'"/>'}
+  else{eyes='<circle cx="'+L+'" cy="'+ey+'" r="'+2.8*k+'" fill="'+d+'"/><circle cx="'+R+'" cy="'+ey+'" r="'+2.8*k+'" fill="'+d+'"/>';mouth='<path d="M'+(x-5*k)+' '+my+'Q'+x+' '+(my+5*k)+' '+(x+5*k)+' '+my+'" '+sw+'/>'}
+  return eyes+mouth+cheeks}
+function masSvg(kind,sz,id){var c=CH.filter(function(x){return x[0]===(id||partner())})[0]||CH[0];
+  return '<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 100 100" role="img" aria-label="'+c[1]+'">'+c[3]+chFace(kind||'smile',c[4],c[5],c[6])+'</svg>'}
 function skin(){try{return localStorage.getItem('gb_skin')==='cute'?'cute':'cool'}catch(e){return 'cool'}}
 var PALS={cool:[['ink','먹과 인장','#0E0E0F','#C8201F'],['blue','심야 블루','#16213B','#4C8DFF'],['lime','이끼 라임','#15241A','#B6F24A'],['chalk','초크 모노','#0E0E0F','#F4F4F2']],cute:[['peach','말랑 파스텔','#FFE3D3','#DB522A'],['jelly','젤리 팝','#7C5CFF','#FFD84D']]};
 function palOf(k){try{var v=localStorage.getItem('gb_pal_'+k);return PALS[k].some(function(x){return x[0]===v})?v:PALS[k][0][0]}catch(e){return PALS[k][0][0]}}
@@ -1272,6 +1289,7 @@ function sheetHtml(){if(!S.sheet)return '';var k=skin(),p=palOf(k),f=fsLevel();
   return '<div class="sheet" data-act="sheetclose"><div class="sp" role="dialog" aria-label="화면 설정"><div class="sphd"><b>화면 설정</b><button class="btn ghost sm" data-act="sheetclose">닫기</button></div>'+
    '<div class="splab">분위기</div>'+seg([['cool','간지'],['cute','귀여움']],k,'data-sk')+
    '<div class="splab">색상</div><div class="pals">'+PALS[k].map(function(x){return '<button type="button" class="pal" data-sp="'+x[0]+'" aria-pressed="'+(x[0]===p)+'"><span class="swc"><i style="background:'+x[2]+'"></i><i style="background:'+x[3]+'"></i></span>'+x[1]+'</button>'}).join('')+'</div>'+
+   '<div class="splab">내 짝꿍</div><div class="chars">'+CH.map(function(c){return '<button type="button" class="chb" data-sc="'+c[0]+'" aria-pressed="'+(c[0]===partner())+'"><span class="cp" style="background:'+c[2]+'">'+masSvg('smile',40,c[0])+'</span>'+c[1]+'</button>'}).join('')+'</div>'+(k==='cute'?'':'<p class="sub" style="margin:8px 0 0">짝꿍은 "귀여움" 분위기에서 나타나요.</p>')+
    '<div class="splab">글씨 크기</div>'+seg([['0','보통'],['1','크게'],['2','아주 크게']],String(f),'data-sf')+'</div></div>'}
 function skinBtn(){return '<button class="btn ghost sm" data-act="skin" aria-label="화면 분위기 바꾸기">'+(skin()==='cute'?'간지 버전':'귀여운 버전')+'</button>'}
 applySkin();
@@ -1282,7 +1300,7 @@ function applyFs(){var z=FS[fsLevel()];document.documentElement.style.zoom=Strin
 function fsBtn(){return '<button class="btn ghost sm fsb" data-act="fs" aria-label="글씨 크기 바꾸기. 지금은 '+FSN[fsLevel()]+'"><i style="font-size:13px">가</i><i style="font-size:20px">가</i><span style="margin-left:6px">글씨 크기</span></button>'}
 applyFs();
 /* ---------- 자동 업데이트: 앱을 켜거나 다시 열 때마다 새 버전 확인 ---------- */
-var APP_V='gb-v29',reloading=false,pendingUpdate=false;
+var APP_V='gb-v30',reloading=false,pendingUpdate=false;
 function applyUpdate(){if(reloading)return;if(T.run){pendingUpdate=true;return}var a=document.activeElement;
   if(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)&&S.session){pendingUpdate=true;return}
   reloading=true;try{flush()}catch(e){}toast('새 버전으로 업데이트해요');setTimeout(function(){location.reload()},700)}

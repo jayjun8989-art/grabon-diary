@@ -1266,7 +1266,7 @@ var CH=[
  ['boulder','볼더','#E6EFE0','<path d="M16 72Q12 46 30 33Q44 20 62 26Q86 32 86 56Q88 76 70 82L30 82Q18 82 16 72Z" fill="#B9B3AA"/><path d="M30 33Q44 20 62 26Q52 38 42 35Q36 40 30 33Z" fill="#8FC98B"/><path d="M60 27Q74 30 80 42Q70 40 64 34Z" fill="#8FC98B"/>',52,60,1.15],
  ['hand','장악이','#FFE7DC','<rect x="30" y="52" width="42" height="34" rx="14" fill="#FFCDB0"/><rect x="31" y="26" width="9" height="34" rx="4.5" fill="#FFCDB0"/><rect x="42" y="20" width="9" height="40" rx="4.5" fill="#FFCDB0"/><rect x="53" y="22" width="9" height="38" rx="4.5" fill="#FFCDB0"/><rect x="64" y="30" width="9" height="32" rx="4.5" fill="#FFCDB0"/><rect x="16" y="54" width="9" height="26" rx="4.5" fill="#FFCDB0" transform="rotate(-32 20 66)"/>',51,66,1.05]
 ];
-function partner(){try{var v=localStorage.getItem('gb_char');return CH.some(function(c){return c[0]===v})?v:'grip'}catch(e){return 'grip'}}
+function partner(){try{var v=localStorage.getItem('gb_char');return CH.some(function(c){return c[0]===v})?v:'chalk'}catch(e){return 'chalk'}}
 function chFace(kind,x,y,k){
   var d='#2A1D1A',e=7*k,ey=y-2*k,my=y+6*k,pink='#FF7A8A';
   var cheeks='<circle cx="'+(x-12*k)+'" cy="'+(y+5*k)+'" r="'+3.2*k+'" fill="'+pink+'" opacity=".45"/><circle cx="'+(x+12*k)+'" cy="'+(y+5*k)+'" r="'+3.2*k+'" fill="'+pink+'" opacity=".45"/>';
@@ -1300,7 +1300,7 @@ function applyFs(){var z=FS[fsLevel()];document.documentElement.style.zoom=Strin
 function fsBtn(){return '<button class="btn ghost sm fsb" data-act="fs" aria-label="글씨 크기 바꾸기. 지금은 '+FSN[fsLevel()]+'"><i style="font-size:13px">가</i><i style="font-size:20px">가</i><span style="margin-left:6px">글씨 크기</span></button>'}
 applyFs();
 /* ---------- 자동 업데이트: 앱을 켜거나 다시 열 때마다 새 버전 확인 ---------- */
-var APP_V='gb-v30',reloading=false,pendingUpdate=false;
+var APP_V='gb-v31',reloading=false,pendingUpdate=false;
 function applyUpdate(){if(reloading)return;if(T.run){pendingUpdate=true;return}var a=document.activeElement;
   if(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)&&S.session){pendingUpdate=true;return}
   reloading=true;try{flush()}catch(e){}toast('새 버전으로 업데이트해요');setTimeout(function(){location.reload()},700)}

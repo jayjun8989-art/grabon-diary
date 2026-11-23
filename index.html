@@ -658,7 +658,8 @@ var store={
   saveDay:function(num,day,data){return rpc('gb_save_day',{p_token:S.token,p_num:num,p_day:day,p_data:data})}
 };
 /* ---------- 상태 ---------- */
-var S={sheet:false,pass:null,feed:null,gym:null,mf:'all',msearch:'',lb:null,postedDay:'',store:store,token:null,session:null,uid:null,isAdmin:false,me:null,roster:[],tab:'today',loading:false,seq:0,loginMode:'member',adminSet:true,confirmDel:false,
+var MODE='member',TOKKEY=(MODE==='admin'?'gb_tok_a':'gb_tok');
+var S={sheet:false,pass:null,feed:null,gym:null,mf:'all',msearch:'',lb:null,postedDay:'',store:store,token:null,session:null,uid:null,isAdmin:false,me:null,roster:[],tab:'today',loading:false,seq:0,loginMode:MODE,adminSet:true,confirmDel:false,
   target:null,date:TODAY,month:TODAY.slice(0,7),days:{},draft:null,draftKey:'',saveState:'',unsubDays:null,ready:false,timer:null};
 var $app=document.getElementById('app');
 S.adate=TODAY;S.chat={msgs:[],pinned:null,last:0,unread:0,loaded:false,timer:null};
@@ -801,15 +802,15 @@ function editorHtml(){
 function rateHtml(key,val){var h='<div class="rate" role="group" data-rate="'+key+'">';for(var i=1;i<=5;i++)h+='<button type="button" aria-pressed="'+(val===i)+'" data-v="'+i+'">'+i+'</button>';return h+'</div>'}
 
 function viewLogin(){
-  var adm=S.loginMode==='admin';
+  var adm=MODE==='admin';
   var h='<div class="center"><div style="text-align:right;margin-bottom:6px;display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap">'+settingsBtn()+'</div><img class="hero" alt="掌握" src="'+HERO+'"><div class="brand" style="margin:18px 0 6px">GRABON WORKOUT</div>';
   if(!adm){
     h+='<div class="card" style="margin-top:28px"><p style="margin:0 0 14px;font-size:15px;font-weight:600;line-height:1.5">센터에 등록된 <b>회원번호</b>와 <b>이름</b>을 입력하세요.</p><label class="sub" for="l-num">회원번호</label><input id="l-num" type="text" inputmode="text" placeholder="회원관리 프로그램의 회원번호" autocomplete="username" style="margin:6px 0 14px">'+
       '<label class="sub" for="l-name">이름</label><input id="l-name" type="text" placeholder="회원증과 같은 이름" autocomplete="name" style="margin:6px 0 18px">'+
-      '<button class="btn acc" data-act="login">시작하기</button><ul class="lgnote"><li>처음 한 번만 입력하면 이 폰에서 90일 동안 유지돼요.</li><li>번호나 이름이 안 되면 센터에 문의해 주세요.</li></ul></div><p class="sub"><a href="#" data-act="adminmode" style="color:var(--mute)">관리자 로그인</a></p>';
+      '<button class="btn acc" data-act="login">시작하기</button><ul class="lgnote"><li>처음 한 번만 입력하면 이 폰에서 90일 동안 유지돼요.</li><li>번호나 이름이 안 되면 센터에 문의해 주세요.</li></ul></div>';
   }else{
     h+='<div class="card" style="margin-top:28px">'+(S.adminSet?'':'<div class="banner" style="margin:0 0 12px">처음이에요. 사용할 관리자 PIN을 정해 주세요 (6자 이상). 지금 정한 PIN이 관리자 PIN이 됩니다.</div>')+
-      '<label class="sub" for="l-apin">관리자 PIN</label><input id="l-apin" type="password" autocomplete="current-password" style="margin:6px 0 18px"><button class="btn acc" data-act="adminlogin">'+(S.adminSet?'로그인':'PIN 정하고 시작')+'</button></div><p class="sub"><a href="#" data-act="membermode" style="color:var(--mute)">회원 로그인으로</a></p>';
+      '<label class="sub" for="l-apin">관리자 PIN</label><input id="l-apin" type="password" autocomplete="current-password" style="margin:6px 0 18px"><button class="btn acc" data-act="adminlogin">'+(S.adminSet?'로그인':'PIN 정하고 시작')+'</button></div>';
   }
   return h+installHtml()+'</div>';
 }
@@ -1311,20 +1312,22 @@ document.addEventListener('click',function(e){
 
 /* ---------- 시작 ---------- */
 function onLogin(token,sess){
+  if((MODE==='admin')!==!!sess.admin){forceLogout();return}
   S.token=token;S.session=sess;S.isAdmin=!!sess.admin;S.uid=sess.admin?'__admin':sess.num;S.me=sess.admin?null:{name:sess.name};
-  try{localStorage.setItem('gb_tok',token)}catch(e){}
+  try{localStorage.setItem(TOKKEY,token)}catch(e){}
   S.target=null;S.date=TODAY;S.adate=TODAY;S.draftKey='';S.ready=true;S.chat={msgs:[],pinned:null,last:0,unread:0,loaded:false,timer:null};chatLoop();
   var goChat=/[?&]tab=chat/.test(location.search);if(S.isAdmin){S.tab=goChat?'chat':'members';if(goChat)chatReload();render();loadAll()}else{S.tab=goChat?'chat':'today';if(goChat)chatReload();watchTarget();loadFeed()}loadPush();
 }
 function forceLogout(){
   clearTimeout(S.chat.timer);
-  S.token=null;S.session=null;S.isAdmin=false;S.uid=null;S.me=null;S.days={};S.draft=null;S.draftKey='';S.loginMode='member';
-  try{localStorage.removeItem('gb_tok')}catch(e){}
+  S.token=null;S.session=null;S.isAdmin=false;S.uid=null;S.me=null;S.days={};S.draft=null;S.draftKey='';S.loginMode=MODE;
+  try{localStorage.removeItem(TOKKEY)}catch(e){}
   S.ready=true;render();
 }
-var tok=null;try{tok=localStorage.getItem('gb_tok')}catch(e){}
+var tok=null;try{tok=localStorage.getItem(TOKKEY)}catch(e){}
 document.body.classList.add('dark-login');$app.innerHTML='<div class="center"><img class="hero" alt="" src="'+HERO+'"></div>';
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target&&/^l-/.test(e.target.id||'')){var b=document.querySelector('.center [data-act=login],.center [data-act=adminlogin]');if(b)b.click()}});
+if(MODE==='admin')setTimeout(function(){rpc('gb_admin_status').then(function(v){S.adminSet=!!v;if(!S.token&&S.ready)render()},function(){})},0);
 if(tok){
   rpc('gb_me',{p_token:tok}).then(function(m){onLogin(tok,m)},function(e){if(e&&e.code==='network'){S.ready=true;render();toast('인터넷 연결을 확인하세요')}else forceLogout()});
 }else{S.ready=true;render()}
@@ -1405,7 +1408,7 @@ function applyFs(){var z=FS[fsLevel()];document.documentElement.style.zoom=Strin
 function fsBtn(){return '<button class="btn ghost sm fsb" data-act="fs" aria-label="글씨 크기 바꾸기. 지금은 '+FSN[fsLevel()]+'"><i style="font-size:13px">가</i><i style="font-size:20px">가</i><span style="margin-left:6px">글씨 크기</span></button>'}
 applyFs();
 /* ---------- 자동 업데이트: 앱을 켜거나 다시 열 때마다 새 버전 확인 ---------- */
-var APP_V='gb-v44',reloading=false,pendingUpdate=false;
+var APP_V='gb-v45',reloading=false,pendingUpdate=false;
 function applyUpdate(){if(reloading)return;if(T.run){pendingUpdate=true;return}var a=document.activeElement;
   if(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)&&S.session){pendingUpdate=true;return}
   reloading=true;try{flush()}catch(e){}toast('새 버전으로 업데이트해요');setTimeout(function(){location.reload()},700)}

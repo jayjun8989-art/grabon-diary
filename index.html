@@ -595,6 +595,19 @@ html[data-mas="off"] .mas,html[data-mas="off"] .tmasbox,html[data-mas="off"] .cu
 .seg4 button{border:0;background:transparent;color:var(--mute);font-weight:700;font-size:15px;min-height:46px;border-radius:11px;padding:0 6px}
 .seg4 button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
 html[data-skin="cute"] .seg4 button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink)}
+
+.lgnote{margin:14px 0 0;padding-left:18px;font-size:14px;color:var(--mute);line-height:1.6}
+.lgnote li+li{margin-top:2px}
+
+/* ---- 타이머 짝꿍·한마디 크게 ---- */
+.tmasbox{gap:12px!important;margin:0 0 14px!important;padding:0 4px;justify-content:flex-start!important;text-align:left}
+.tmasbox>#t-mas{flex:0 0 auto;display:block;filter:drop-shadow(0 3px 6px rgba(0,0,0,.25))}
+.tmasbox>#t-mas svg{width:92px!important;height:92px!important;display:block}
+.tmasbox .tbub{position:relative;flex:1;min-width:0;background:var(--tbtn)!important;color:inherit;border-radius:18px!important;padding:14px 16px!important;font-size:19px!important;font-weight:800!important;line-height:1.35;letter-spacing:-.2px;word-break:keep-all;display:block}
+.tmasbox .tbub::before{content:""!important;display:block!important;position:absolute;left:-9px;top:50%;margin-top:-8px;border:8px solid transparent;border-left:0;border-right:10px solid var(--tbtn)}
+.tmr.full .tmasbox{width:min(100%,460px)}
+.tmr.full .tmasbox>#t-mas svg{width:120px!important;height:120px!important}
+.tmr.full .tmasbox .tbub{font-size:22px!important;padding:16px 18px!important}
 </style>
 </head><body>
 <div class="wrap" id="app"><div class="center"><h2>불러오는 중…</h2></div></div>
@@ -621,7 +634,7 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){retur
 
 /* ---------- 서버 연결 (Supabase RPC) ---------- */
 var SB_URL='https://iknidqosbmqzgkhfaktc.supabase.co',SB_KEY='sb_publishable_lFAVbxnln3D2qTNpYEObPw_IrMj1dfo';
-var ERRS={bad_credentials:'회원번호 또는 이름이 맞지 않아요',locked:'5번 틀려서 5분간 잠겼어요',name_mismatch:'회원번호 또는 이름이 맞지 않아요',pin_format:'PIN은 숫자 4~6자리로 정해 주세요',pin_too_short:'관리자 PIN은 6자 이상이어야 해요',unauthorized:'다시 로그인해 주세요',forbidden:'권한이 없어요',empty:'회원번호와 이름을 입력하세요',not_found:'회원을 찾을 수 없어요',inactive:'이용권이 끝났어요. 센터에 문의해 주세요',slow_down:'조금 천천히 보내 주세요',bad_message:'메시지는 1~500자로 써 주세요'};
+var ERRS={bad_credentials:'회원번호와 이름이 센터 등록 정보와 같은지 확인해 주세요',locked:'5번 틀려서 5분간 잠겼어요',name_mismatch:'회원번호와 이름이 센터 등록 정보와 같은지 확인해 주세요',pin_format:'PIN은 숫자 4~6자리로 정해 주세요',pin_too_short:'관리자 PIN은 6자 이상이어야 해요',unauthorized:'다시 로그인해 주세요',forbidden:'권한이 없어요',empty:'회원번호와 이름을 입력하세요',not_found:'회원을 찾을 수 없어요',inactive:'이용권이 끝났어요. 센터에 문의해 주세요',slow_down:'조금 천천히 보내 주세요',bad_message:'메시지는 1~500자로 써 주세요'};
 function rpc(fn,args){
   return fetch(SB_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:{'apikey':SB_KEY,'Content-Type':'application/json'},body:JSON.stringify(args||{})})
    .then(function(r){return r.text().then(function(t){var j=null;try{j=t?JSON.parse(t):null}catch(e){}
@@ -780,9 +793,9 @@ function viewLogin(){
   var adm=S.loginMode==='admin';
   var h='<div class="center"><div style="text-align:right;margin-bottom:6px;display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap">'+settingsBtn()+'</div><img class="hero" alt="掌握" src="'+HERO+'"><div class="brand" style="margin:18px 0 6px">GRABON</div>';
   if(!adm){
-    h+='<div class="card" style="margin-top:28px"><label class="sub" for="l-num">회원번호</label><input id="l-num" type="text" inputmode="text" placeholder="회원관리 프로그램의 회원번호" autocomplete="username" style="margin:6px 0 14px">'+
-      '<label class="sub" for="l-name">이름</label><input id="l-name" type="text" placeholder="이름" autocomplete="name" style="margin:6px 0 18px">'+
-      '<button class="btn acc" data-act="login">시작하기</button></div><p class="sub"><a href="#" data-act="adminmode" style="color:var(--mute)">관리자 로그인</a></p>';
+    h+='<div class="card" style="margin-top:28px"><p style="margin:0 0 14px;font-size:15px;font-weight:600;line-height:1.5">센터에 등록된 <b>회원번호</b>와 <b>이름</b>을 입력하세요.</p><label class="sub" for="l-num">회원번호</label><input id="l-num" type="text" inputmode="text" placeholder="회원관리 프로그램의 회원번호" autocomplete="username" style="margin:6px 0 14px">'+
+      '<label class="sub" for="l-name">이름</label><input id="l-name" type="text" placeholder="회원증과 같은 이름" autocomplete="name" style="margin:6px 0 18px">'+
+      '<button class="btn acc" data-act="login">시작하기</button><ul class="lgnote"><li>처음 한 번만 입력하면 이 폰에서 90일 동안 유지돼요.</li><li>번호나 이름이 안 되면 센터에 문의해 주세요.</li></ul></div><p class="sub"><a href="#" data-act="adminmode" style="color:var(--mute)">관리자 로그인</a></p>';
   }else{
     h+='<div class="card" style="margin-top:28px">'+(S.adminSet?'':'<div class="banner" style="margin:0 0 12px">처음이에요. 사용할 관리자 PIN을 정해 주세요 (6자 이상). 지금 정한 PIN이 관리자 PIN이 됩니다.</div>')+
       '<label class="sub" for="l-apin">관리자 PIN</label><input id="l-apin" type="password" autocomplete="current-password" style="margin:6px 0 18px"><button class="btn acc" data-act="adminlogin">'+(S.adminSet?'로그인':'PIN 정하고 시작')+'</button></div><p class="sub"><a href="#" data-act="membermode" style="color:var(--mute)">회원 로그인으로</a></p>';
@@ -1127,7 +1140,7 @@ function tmrStart(){
   if(T.run&&tmrManual()){nextPhase();tmrPaint();return}
   if(T.run){tmrPause();return}
   audioCtx();
-  if(T.phase==='idle'||T.phase==='done'){T.set=1;T.act=0;if(T.cfg.full!==false)T.full=true;setPhase('ready',Date.now())}
+  if(T.phase==='idle'||T.phase==='done'){T.runId=(T.runId||0)+1;T.set=1;T.act=0;if(T.cfg.full!==false)T.full=true;setPhase('ready',Date.now())}
   else if(tmrManual()){T.wstart=Date.now()}
   else{T.end=Date.now()+T.left*1000}
   T.run=true;T.last=Date.now();clearInterval(T.iv);T.iv=setInterval(tmrTick,100);wake();tmrPaint();repaintTabs()}
@@ -1318,9 +1331,17 @@ var CH=[
  ['boulder','볼더','#E6EFE0','<path d="M16 72Q12 46 30 33Q44 20 62 26Q86 32 86 56Q88 76 70 82L30 82Q18 82 16 72Z" fill="#B9B3AA"/><path d="M30 33Q44 20 62 26Q52 38 42 35Q36 40 30 33Z" fill="#8FC98B"/><path d="M60 27Q74 30 80 42Q70 40 64 34Z" fill="#8FC98B"/>',52,60,1.15],
  ['hand','장악이','#FFE7DC','<rect x="30" y="52" width="42" height="34" rx="14" fill="#FFCDB0"/><rect x="31" y="26" width="9" height="34" rx="4.5" fill="#FFCDB0"/><rect x="42" y="20" width="9" height="40" rx="4.5" fill="#FFCDB0"/><rect x="53" y="22" width="9" height="38" rx="4.5" fill="#FFCDB0"/><rect x="64" y="30" width="9" height="32" rx="4.5" fill="#FFCDB0"/><rect x="16" y="54" width="9" height="26" rx="4.5" fill="#FFCDB0" transform="rotate(-32 20 66)"/>',51,66,1.05]
 ];
-var QUOTES=['떨어져도 괜찮아. 다시 잡으면 돼.','오늘 잡은 한 홀드가 내일의 루트가 된다.','손이 기억한다. 몸이 따라온다.','NEVER GIVE UP. 掌握.','쉬운 루트는 기억에 남지 않는다.','한 번 더. 딱 한 번만 더.','벽 앞에서 망설인 시간이 제일 아깝다.','완등은 한 손씩 쌓는 것.','어제의 나를 오늘 넘는다.','쉬어도 된다. 포기만 하지 마라.','GRAB ON. 끝까지 잡아.','오늘의 땀이 내일의 그립이다.'];
+var QUOTES=['떨어져도 괜찮아. 다시 잡으면 돼.','오늘 잡은 한 홀드가 내일의 루트가 된다.','손이 기억한다. 몸이 따라온다.','NEVER GIVE UP. 掌握.','쉬운 루트는 기억에 남지 않는다.','한 번 더. 딱 한 번만 더.','벽 앞에서 망설인 시간이 제일 아깝다.','완등은 한 손씩 쌓는 것.','어제의 나를 오늘 넘는다.','쉬어도 된다. 포기만 하지 마라.','GRAB ON. 끝까지 잡아.','오늘의 땀이 내일의 그립이다.','팔이 길면 유리하고, 포기하면 불리하다.','오늘 안 가면 내일 두 배로 간다.','루트 파인딩은 인생 파인딩.','발 먼저, 손은 그다음.','쉬는 날의 근육은 일하는 중이다.','손바닥 굳은살은 훈장이다.','손이 안 닿으면 발로 가라.','실패 열 번이면 성공 직전이다.','벽은 도망 안 간다. 내가 올라갈 뿐.','오늘 운동한 나, 어제의 나보다 멋지다.','초크 한 번에 용기 한 스푼.','완등 후 내려다보는 맛에 산다.'];
 function quote(){return QUOTES[Math.floor(Date.now()/86400000)%QUOTES.length]}
-function coolTx(){var p=T.phase;if(p==='idle')return '준비됐나. 잡아.';if(p==='ready')return '숨 고르고, 간다.';if(p==='work')return T.run?'NEVER GIVE UP':'멈춘 건 잠깐이다.';if(p==='rest')return T.run?'숨 고르고, 다시 간다.':'잠깐, 정비 중.';return '오늘도 장악했다.'}
+var TXL={idle:['준비됐나. 잡아.','오늘은 어떤 루트를 부술까.','스트레칭은 했지? 안 했으면 지금.','손바닥에 초크 묻혔나.','시작 버튼은 겁이 많다. 눌러줘라.'],
+ready:['숨 고르고, 간다.','3, 2, 1... 매달려!','심장아, 조용히 해.','신발 끈 묶어. 아니, 클라이밍화 말고.'],
+work:['NEVER GIVE UP','팔이 우는 건 성장 중이라는 뜻.','지금 포기하면 팔만 아깝다.','턱 올려! 턱!','떨어지면 다시 잡으면 돼.','근육: "살려줘" / 정신: "더."','이 한 번이 내일의 완등.','아프냐? 잘하고 있다는 뜻.','팔은 빌린 거 아니다. 더 써라.','후회는 쉬는 시간에 해.','그립이 널 믿는다.'],
+pause:['멈춘 건 잠깐이다.','일시정지는 포기가 아니다.','벌써 쉬어? ...그래 쉬자.'],
+rest:['숨 고르고, 다시 간다.','물 한 모금, 어깨 힘 빼기.','쉬는 것도 운동이다. 진짜로.','곧 또 매달린다. 마음의 준비.','초크 다시 묻혀.','손바닥 털고 쉬어라.'],
+restpause:['잠깐, 정비 중.','쉬는 시간도 멈췄다. 푹 쉬어.'],
+done:['오늘도 장악했다.','수고했다. 오늘의 나, 합격.','내일 팔 아프면 오늘 잘한 거다.','단백질 먹으러 가자.','샤워하면 천국이다.']};
+function pickTx(k){var a=TXL[k];if(T.qk!==k+'|'+T.set+'|'+T.runId){T.qk=k+'|'+T.set+'|'+T.runId;T.qt=a[Math.floor(Math.random()*a.length)]}return T.qt}
+function coolTx(){var p=T.phase;if(p==='idle')return pickTx('idle');if(p==='ready')return pickTx('ready');if(p==='work')return pickTx(T.run?'work':'pause');if(p==='rest')return pickTx(T.run?'rest':'restpause');return pickTx('done')}
 function partner(){try{var v=localStorage.getItem('gb_char');return CH.some(function(c){return c[0]===v})?v:'chalk'}catch(e){return 'chalk'}}
 function chFace(kind,x,y,k){
   var d='#2A1D1A',e=7*k,ey=y-2*k,my=y+6*k,pink='#FF7A8A';
@@ -1371,7 +1392,7 @@ function applyFs(){var z=FS[fsLevel()];document.documentElement.style.zoom=Strin
 function fsBtn(){return '<button class="btn ghost sm fsb" data-act="fs" aria-label="글씨 크기 바꾸기. 지금은 '+FSN[fsLevel()]+'"><i style="font-size:13px">가</i><i style="font-size:20px">가</i><span style="margin-left:6px">글씨 크기</span></button>'}
 applyFs();
 /* ---------- 자동 업데이트: 앱을 켜거나 다시 열 때마다 새 버전 확인 ---------- */
-var APP_V='gb-v34',reloading=false,pendingUpdate=false;
+var APP_V='gb-v37',reloading=false,pendingUpdate=false;
 function applyUpdate(){if(reloading)return;if(T.run){pendingUpdate=true;return}var a=document.activeElement;
   if(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)&&S.session){pendingUpdate=true;return}
   reloading=true;try{flush()}catch(e){}toast('새 버전으로 업데이트해요');setTimeout(function(){location.reload()},700)}

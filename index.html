@@ -608,6 +608,15 @@ html[data-skin="cute"] .seg4 button[aria-pressed=true]{background:var(--accent);
 .tmr.full .tmasbox{width:min(100%,460px)}
 .tmr.full .tmasbox>#t-mas svg{width:120px!important;height:120px!important}
 .tmr.full .tmasbox .tbub{font-size:22px!important;padding:16px 18px!important}
+
+/* ---- 전체 화면: 위가 잘리지 않게 (세로가 짧은 폰 대응) ---- */
+.tmr.card.full{justify-content:flex-start!important;gap:8px!important}
+.tmr.full>.tmasbox{margin-top:auto!important}
+.tmr.full>.tbtns{margin-bottom:auto!important}
+.tmr.full .tface{width:min(calc((100vw - 40px) / var(--z,1)),calc(40vh / var(--z,1)),460px)!important}
+.tmr.full .tmasbox>#t-mas svg{width:min(120px,13vh)!important;height:min(120px,13vh)!important}
+.tmr.full .tmasbox .tbub{font-size:min(22px,3.4vh)!important;padding:10px 14px!important}
+.tmr.full .tmasbox{margin-bottom:6px!important}
 </style>
 </head><body>
 <div class="wrap" id="app"><div class="center"><h2>불러오는 중…</h2></div></div>
@@ -1392,7 +1401,7 @@ function applyFs(){var z=FS[fsLevel()];document.documentElement.style.zoom=Strin
 function fsBtn(){return '<button class="btn ghost sm fsb" data-act="fs" aria-label="글씨 크기 바꾸기. 지금은 '+FSN[fsLevel()]+'"><i style="font-size:13px">가</i><i style="font-size:20px">가</i><span style="margin-left:6px">글씨 크기</span></button>'}
 applyFs();
 /* ---------- 자동 업데이트: 앱을 켜거나 다시 열 때마다 새 버전 확인 ---------- */
-var APP_V='gb-v38',reloading=false,pendingUpdate=false;
+var APP_V='gb-v39',reloading=false,pendingUpdate=false;
 function applyUpdate(){if(reloading)return;if(T.run){pendingUpdate=true;return}var a=document.activeElement;
   if(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)&&S.session){pendingUpdate=true;return}
   reloading=true;try{flush()}catch(e){}toast('새 버전으로 업데이트해요');setTimeout(function(){location.reload()},700)}

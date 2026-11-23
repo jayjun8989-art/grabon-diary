@@ -1121,8 +1121,9 @@ var VL={cute:{start:['운동 시작! 할 수 있다~!','영차영차~ 할 수 �
  mid:['버텨. 팔이 우는 건 성장이다.','아직 안 끝났어.','지금이 진짜야.','포기는 없다. 근육만 운다.','중력한테 지지 마.','반 넘었다. 끝까지 잡아.'],
  rest:['숨 고르고, 다시 잡는다.','물 마시고 와. 곧 다시 간다.','어깨 힘 빼. 팔 살려라.','쉬는 것도 운동이다. 진짜로.','초크 다시 묻혀.','후회는 쉬는 시간에 해.'],
  done:['장악 완료.','오늘도 잡았다. 중력은 졌다.','수고했다. 단백질 먹으러 가자.','내일 팔 아프면 오늘 이긴 거다.','벽은 오늘도 졌다.']}};
-function koVoice(){try{var v=speechSynthesis.getVoices();for(var i=0;i<v.length;i++)if(/^ko/i.test(v[i].lang))return v[i]}catch(e){}return null}
-function sayNow(text){try{if(!window.speechSynthesis)return;var u=new SpeechSynthesisUtterance(text);u.lang='ko-KR';var v=koVoice();if(v)u.voice=v;var cute=skin()==='cute';u.rate=cute?1.05:.95;u.pitch=cute?1.5:.8;u.volume=1;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+function koVoice(cute){try{var v=speechSynthesis.getVoices().filter(function(x){return /^ko/i.test(x.lang)});if(!v.length)return null;var f=v.filter(function(x){return cute?/yuna|유나|heami|sunhi|seoyeon|female|여/i.test(x.name):/injoon|male|남|minsu/i.test(x.name)&&!/female/i.test(x.name)});return f[0]||v[0]}catch(e){}return null}
+function hasVoice(){return !!(window.speechSynthesis&&window.SpeechSynthesisUtterance)&&T.cfg.voice!==false}
+function sayNow(text){try{if(!window.speechSynthesis)return;var u=new SpeechSynthesisUtterance(text);u.lang='ko-KR';var cute=skin()==='cute';var v=koVoice(cute);if(v)u.voice=v;u.rate=cute?1.12:.92;u.pitch=cute?2:.6;u.volume=1;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
 function say(kind,delay,force){if(T.cfg.voice===false)return;var a=VL[skin()==='cute'?'cute':'cool'][kind];if(!a)return;var t=a[Math.floor(Math.random()*a.length)];if(t===T.lastSay&&a.length>1)t=a[(a.indexOf(t)+1)%a.length];T.lastSay=t;var tok=T.vtok=(T.vtok||0)+1;setTimeout(function(){if(T.vtok!==tok)return;if(!force&&kind!=='done'&&!(T.run&&(T.phase==='work'||T.phase==='rest')&&T.left>4.5))return;sayNow(t)},delay||0)}
 function sayStop(){T.vtok=(T.vtok||0)+1;try{if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}}
 function snd(){return SND[T.cfg.snd]||SND.tabata}
@@ -1136,7 +1137,7 @@ function setPhase(ph,base){var c=T.cfg;T.phase=ph;
   if(ph==='work'&&c.manual){T.dur=0;T.end=Infinity;T.left=Infinity;T.wstart=Date.now()}
   else{T.end=base+T.dur*1000;T.left=(T.end-Date.now())/1000}
   T.lastSec=-1;
-  if(ph==='work'){snd().start();buzz([250,80,250,80,250]);say('start',1250)}
+  if(ph==='work'){if(hasVoice()&&(c.manual||c.work>5))say('start',0);else snd().start();buzz([250,80,250,80,250])}
   else if(ph==='rest'){snd().rest();buzz([200,100,200]);say('rest',1500)}
   else if(ph==='done'){snd().done();buzz([300,100,300,100,700]);tmrStop(true);say('done',3400)}}
 function nextPhase(){var c=T.cfg,p=T.phase,b=(T.end===Infinity)?Date.now():T.end;
@@ -1411,7 +1412,7 @@ function applyFs(){var z=FS[fsLevel()];document.documentElement.style.zoom=Strin
 function fsBtn(){return '<button class="btn ghost sm fsb" data-act="fs" aria-label="글씨 크기 바꾸기. 지금은 '+FSN[fsLevel()]+'"><i style="font-size:13px">가</i><i style="font-size:20px">가</i><span style="margin-left:6px">글씨 크기</span></button>'}
 applyFs();
 /* ---------- 자동 업데이트: 앱을 켜거나 다시 열 때마다 새 버전 확인 ---------- */
-var APP_V='gb-v42',reloading=false,pendingUpdate=false;
+var APP_V='gb-v43',reloading=false,pendingUpdate=false;
 function applyUpdate(){if(reloading)return;if(T.run){pendingUpdate=true;return}var a=document.activeElement;
   if(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)&&S.session){pendingUpdate=true;return}
   reloading=true;try{flush()}catch(e){}toast('새 버전으로 업데이트해요');setTimeout(function(){location.reload()},700)}

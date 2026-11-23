@@ -617,6 +617,8 @@ html[data-skin="cute"] .seg4 button[aria-pressed=true]{background:var(--accent);
 .tmr.full .tmasbox>#t-mas svg{width:min(120px,13vh)!important;height:min(120px,13vh)!important}
 .tmr.full .tmasbox .tbub{font-size:min(22px,3.4vh)!important;padding:10px 14px!important}
 .tmr.full .tmasbox{margin-bottom:6px!important}
+
+.tmasbox .tbub{min-height:3.2em;display:flex!important;align-items:center}
 </style>
 </head><body>
 <div class="wrap" id="app"><div class="center"><h2>불러오는 중…</h2></div></div>
@@ -1090,8 +1092,8 @@ function enablePush(){
 /* ---------- 인터벌 타이머 ---------- */
 var TF=[['work','운동',5,1,3600,[20,30,40,45,60]],['rest','휴식',5,0,3600,[10,20,30,45,60]],['sets','세트',1,1,99,[3,5,6,8,10]]];
 var T={full:false,master:null,cfg:null,run:false,phase:'idle',left:0,dur:0,set:1,end:0,act:0,last:0,lastSec:-1,iv:null,ctx:null,wl:null,wstart:0};
-function tmrCfgLoad(){var d={work:30,rest:30,sets:5,manual:false,vol:3,full:true,snd:'tabata',voice:true};
-  try{var c=JSON.parse(localStorage.getItem('gb_tmr'));if(c){if(+c.work>0)d.work=+c.work;if(c.rest!=null&&!isNaN(+c.rest))d.rest=+c.rest;var n=+(c.rounds||c.sets);if(n>0)d.sets=n;d.manual=!!c.manual;if([1,2,3].indexOf(+c.vol)>-1)d.vol=+c.vol;d.full=c.full!==false;d.voice=c.voice!==false}}catch(e){}return d}
+function tmrCfgLoad(){var d={work:30,rest:30,sets:5,manual:false,vol:3,full:true,snd:'tabata'};
+  try{var c=JSON.parse(localStorage.getItem('gb_tmr'));if(c){if(+c.work>0)d.work=+c.work;if(c.rest!=null&&!isNaN(+c.rest))d.rest=+c.rest;var n=+(c.rounds||c.sets);if(n>0)d.sets=n;d.manual=!!c.manual;if([1,2,3].indexOf(+c.vol)>-1)d.vol=+c.vol;d.full=c.full!==false}}catch(e){}return d}
 T.cfg=tmrCfgLoad();T.left=T.cfg.work;
 function tmrCfgSave(){try{localStorage.setItem('gb_tmr',JSON.stringify(T.cfg))}catch(e){}}
 function fmtT(sec){sec=Math.max(0,Math.round(sec));var m=Math.floor(sec/60),r=sec%60;return m>0?m+':'+(r<10?'0'+r:r):String(r)}
@@ -1112,20 +1114,6 @@ function alarmLong(f,len){var c=T.ctx;if(!c)return;tone(f,len,.55,'square',c.cur
 var SND={
  tabata:{start:function(){alarmLong(1760,1.0)},rest:function(){alarm(2,1320,.3,.46)},done:function(){alarmLong(1760,.6);setTimeout(function(){alarmLong(1760,.6)},850);setTimeout(function(){alarmLong(2093,1.4)},1700)},tick:function(){tone(1568,.28,.6,'square')}}
 };
-/* ---- 말로 응원 (음성) ---- */
-var VL={cute:{start:['운동 시작! 할 수 있다~!','영차영차~ 할 수 있다!','가자가자~ 할 수 있다~!','손바닥 준비됐지? 출발~!','초크 묻혔지? 매달려~!','좋았어~ 꼬옥 잡아요!','우리 같이 해요~ 파이팅!','오늘도 한 번 매달려 볼까요~?','심호흡 하고~ 출발~!'],
- mid:['조금만 더~ 거의 다 왔어!','잘하고 있어요~ 최고!','팔아 힘내라~ 힘!','포기는 없어요~ 꼬옥!','반 넘었어요~ 짝짝!','손아 놓치지 마요~!'],
- rest:['잠깐 쉬자~ 후~','물 한 모금~ 꿀꺽!','손바닥 털털~ 쉬는 시간!','팔아 수고했어~ 토닥토닥','숨 고르기~ 후하~','잠깐 멍~ 때려요~'],
- done:['다 했다~! 오늘도 최고!','우와~ 완등이다! 짝짝짝!','수고했어요~ 간식 먹으러 가요!','오늘도 해냈다~ 멋져요!','내일 팔 아프면 잘한 거예요~']},
- cool:{start:['이겨내.','가자.','할 수 있어.','하나 더 잡으러 가자.','손 놓지 마. 벽이 웃는다.','홀드는 도망 안 가. 잡아.','중력? 이겨라.','지금부터 장악.','팔은 빌린 거 아니다. 써라.','아프면 잘하고 있는 거다.','한 번 더. 딱 한 번만.'],
- mid:['버텨. 팔이 우는 건 성장이다.','아직 안 끝났어.','지금이 진짜야.','포기는 없다. 근육만 운다.','중력한테 지지 마.','반 넘었다. 끝까지 잡아.'],
- rest:['숨 고르고, 다시 잡는다.','물 마시고 와. 곧 다시 간다.','어깨 힘 빼. 팔 살려라.','쉬는 것도 운동이다. 진짜로.','초크 다시 묻혀.','후회는 쉬는 시간에 해.'],
- done:['장악 완료.','오늘도 잡았다. 중력은 졌다.','수고했다. 단백질 먹으러 가자.','내일 팔 아프면 오늘 이긴 거다.','벽은 오늘도 졌다.']}};
-function koVoice(cute){try{var v=speechSynthesis.getVoices().filter(function(x){return /^ko/i.test(x.lang)});if(!v.length)return null;var f=v.filter(function(x){return cute?/yuna|유나|heami|sunhi|seoyeon|female|여/i.test(x.name):/injoon|male|남|minsu/i.test(x.name)&&!/female/i.test(x.name)});return f[0]||v[0]}catch(e){}return null}
-function hasVoice(){return !!(window.speechSynthesis&&window.SpeechSynthesisUtterance)&&T.cfg.voice!==false}
-function sayNow(text){try{if(!window.speechSynthesis)return;var u=new SpeechSynthesisUtterance(text);u.lang='ko-KR';var cute=skin()==='cute';var v=koVoice(cute);if(v)u.voice=v;u.rate=cute?1.12:.92;u.pitch=cute?2:.6;u.volume=1;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
-function say(kind,delay,force){if(T.cfg.voice===false)return;var a=VL[skin()==='cute'?'cute':'cool'][kind];if(!a)return;var t=a[Math.floor(Math.random()*a.length)];if(t===T.lastSay&&a.length>1)t=a[(a.indexOf(t)+1)%a.length];T.lastSay=t;var tok=T.vtok=(T.vtok||0)+1;setTimeout(function(){if(T.vtok!==tok)return;if(!force&&kind!=='done'&&!(T.run&&(T.phase==='work'||T.phase==='rest')&&T.left>4.5))return;sayNow(t)},delay||0)}
-function sayStop(){T.vtok=(T.vtok||0)+1;try{if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}}
 function snd(){return SND[T.cfg.snd]||SND.tabata}
 function buzz(p){try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
 function wake(){try{if(navigator.wakeLock&&!T.wl)navigator.wakeLock.request('screen').then(function(l){T.wl=l;l.addEventListener('release',function(){T.wl=null})}).catch(function(){})}catch(e){}}
@@ -1137,9 +1125,9 @@ function setPhase(ph,base){var c=T.cfg;T.phase=ph;
   if(ph==='work'&&c.manual){T.dur=0;T.end=Infinity;T.left=Infinity;T.wstart=Date.now()}
   else{T.end=base+T.dur*1000;T.left=(T.end-Date.now())/1000}
   T.lastSec=-1;
-  if(ph==='work'){if(hasVoice()&&(c.manual||c.work>5))say('start',0);else snd().start();buzz([250,80,250,80,250])}
-  else if(ph==='rest'){snd().rest();buzz([200,100,200]);say('rest',1500)}
-  else if(ph==='done'){snd().done();buzz([300,100,300,100,700]);tmrStop(true);say('done',3400)}}
+  if(ph==='work'){snd().start();buzz([250,80,250,80,250])}
+  else if(ph==='rest'){snd().rest();buzz([200,100,200])}
+  else if(ph==='done'){snd().done();buzz([300,100,300,100,700]);tmrStop(true)}}
 function nextPhase(){var c=T.cfg,p=T.phase,b=(T.end===Infinity)?Date.now():T.end;
   if(p==='ready'){setPhase('work',b);return}
   if(p==='work'){
@@ -1152,19 +1140,18 @@ function tmrTick(){var now=Date.now();
     T.left=(T.end-now)/1000;var g=0;
     while(T.left<=0&&T.phase!=='done'&&T.phase!=='idle'&&!tmrManual()&&g++<30){nextPhase();T.left=(T.end-now)/1000}
     var sec=Math.ceil(T.left);
-    if(T.run&&T.dur>3&&sec>=1&&sec<=3&&sec!==T.lastSec&&(T.phase==='work'||T.phase==='rest'||T.phase==='ready')){sayStop();snd().tick();T.lastSec=sec}
-    if(T.run&&T.phase==='work'&&T.dur>=20&&sec===10&&T.midSet!==T.set+':'+T.runId){T.midSet=T.set+':'+T.runId;say('mid',0)}}
+    if(T.run&&T.dur>3&&sec>=1&&sec<=3&&sec!==T.lastSec&&(T.phase==='work'||T.phase==='rest'||T.phase==='ready')){snd().tick();T.lastSec=sec}}
   tmrPaint()}
 function tmrStart(){
   if(T.run&&tmrManual()){nextPhase();tmrPaint();return}
   if(T.run){tmrPause();return}
-  audioCtx();try{if(window.speechSynthesis&&T.cfg.voice!==false){speechSynthesis.getVoices();var pu=new SpeechSynthesisUtterance(' ');pu.volume=0;speechSynthesis.speak(pu)}}catch(e){}
+  audioCtx();
   if(T.phase==='idle'||T.phase==='done'){T.runId=(T.runId||0)+1;T.set=1;T.act=0;if(T.cfg.full!==false)T.full=true;setPhase('ready',Date.now())}
   else if(tmrManual()){T.wstart=Date.now()}
   else{T.end=Date.now()+T.left*1000}
   T.run=true;T.last=Date.now();clearInterval(T.iv);T.iv=setInterval(tmrTick,100);wake();tmrPaint();repaintTabs()}
-function tmrPause(){sayStop();T.run=false;clearInterval(T.iv);T.left=Math.max(0,(T.end-Date.now())/1000);unwake();tmrPaint();repaintTabs()}
-function tmrStop(done){if(!done)sayStop();T.run=false;clearInterval(T.iv);unwake();if(!done){T.phase='idle';T.left=T.cfg.work;T.set=1;T.full=false}tmrPaint();repaintTabs();if(pendingUpdate){pendingUpdate=false;setTimeout(applyUpdate,500)}}
+function tmrPause(){T.run=false;clearInterval(T.iv);T.left=Math.max(0,(T.end-Date.now())/1000);unwake();tmrPaint();repaintTabs()}
+function tmrStop(done){T.run=false;clearInterval(T.iv);unwake();if(!done){T.phase='idle';T.left=T.cfg.work;T.set=1;T.full=false}tmrPaint();repaintTabs();if(pendingUpdate){pendingUpdate=false;setTimeout(applyUpdate,500)}}
 function tmrLabel(){var p=T.phase;var l=p==='idle'?'준비':p==='ready'?'준비':p==='work'?'운동':p==='rest'?'휴식':'완료';
   if(!T.run&&p!=='idle'&&p!=='done')l+=' · 정지';return l}
 function tmrBig(){var p=T.phase,c=T.cfg;if(p==='idle')return fmtT(c.manual?c.rest:c.work);if(p==='done')return fmtT(T.act/1000);if(tmrManual())return fmtT((Date.now()-T.wstart)/1000);return String(fmtT(Math.ceil(Math.max(0,T.left))))}
@@ -1186,7 +1173,7 @@ function tmrPaint(){var c=document.getElementById('tmr');if(!c)return;c.setAttri
   var arc=document.getElementById('t-arc');if(arc){var pc=(T.phase==='idle'||T.phase==='done'||!T.dur||tmrManual())?1:Math.max(0,Math.min(1,T.left/T.dur));arc.style.strokeDashoffset=String(553*(1-pc))}
   var mb=document.getElementById('t-start');if(mb)mb.innerHTML=(T.run&&tmrManual())?IC.check:(T.run?IC.pause:IC.play);
   var dots=document.getElementById('t-dots');if(dots){var n=T.cfg.sets;if(n>14){dots.innerHTML=''}else{var h='';for(var k=1;k<=n;k++){var cls=(T.phase==='done'||k<T.set||(k===T.set&&T.phase==='rest'))?'d':(k===T.set&&(T.phase==='work'))?'c':'';h+='<i class="'+cls+'"></i>'}dots.innerHTML=h}}
-  var tm=document.getElementById('t-mas');if(tm&&showMas()){var kd=T.phase==='work'?'work':(T.phase==='rest'?'rest':(T.phase==='done'?'done':'smile'));var tx0=T.phase==='idle'?'준비됐어요?':T.phase==='ready'?'곧 시작해요!':T.phase==='work'?(T.run?'힘내요! 할 수 있어요':'잠깐 쉬는 중?'):T.phase==='rest'?(T.run?'푹 쉬어요':'잠깐 멈췄어요'):'수고했어요! 최고예요';var tx=skin()==='cute'?tx0:coolTx();if(tm.getAttribute('data-k')!==kd+skin()+partner()){tm.innerHTML=masSvg(kd,58);tm.setAttribute('data-k',kd+skin()+partner())}q('t-bub',tx)}
+  var tm=document.getElementById('t-mas');if(tm&&showMas()){var kd=T.phase==='work'?'work':(T.phase==='rest'?'rest':(T.phase==='done'?'done':'smile'));var tx0=T.phase==='idle'?'준비됐어요?':T.phase==='ready'?'곧 시작해요!':T.phase==='work'?(T.run?'힘내요! 할 수 있어요':'잠깐 쉬는 중?'):T.phase==='rest'?(T.run?'푹 쉬어요':'잠깐 멈췄어요'):'수고했어요! 최고예요';var tx=coolTx();if(tm.getAttribute('data-k')!==kd+skin()+partner()){tm.innerHTML=masSvg(kd,58);tm.setAttribute('data-k',kd+skin()+partner())}q('t-bub',tx)}
   var lg=document.getElementById('t-log');if(lg){lg.hidden=!(T.phase==='done'&&T.act>=60000&&!S.isAdmin);q('t-logmin',Math.max(1,Math.round(T.act/60000)))}}
 function timerCfgHtml(){var c=T.cfg;
   var h='<div class="card"><div class="seg" role="group" aria-label="운동 끝내는 방식"><button type="button" data-tm="0" aria-pressed="'+(!c.manual)+'">시간으로</button><button type="button" data-tm="1" aria-pressed="'+(!!c.manual)+'">버튼으로</button></div>'+
@@ -1194,7 +1181,7 @@ function timerCfgHtml(){var c=T.cfg;
   h+=TF.filter(function(f){return !(c.manual&&f[0]==='work')}).map(function(f){var v=c[f[0]],u=f[0]==='sets'?'세트':'초';
     return '<div class="tset"><div class="hd"><span>'+f[1]+'</span><span class="st"><button type="button" data-ts="'+f[0]+':-1" aria-label="'+f[1]+' 줄이기">−</button><b>'+v+(u==='세트'?'':'<small style="font-size:12px;font-weight:600"> 초</small>')+'</b><button type="button" data-ts="'+f[0]+':1" aria-label="'+f[1]+' 늘리기">+</button></span></div>'+
       '<div class="ichips">'+f[5].map(function(q){return '<button type="button" data-tq="'+f[0]+':'+q+'" aria-pressed="'+(v===q)+'">'+q+(u==='세트'?'세트':'초')+'</button>'}).join('')+'</div></div>'}).join('')+'</div>';
-  h+='<div class="card"><h3>알림음과 화면</h3><div class="splab" style="margin:0 0 8px">알림음 크기</div><div class="seg3">'+[[1,'보통'],[2,'크게'],[3,'최대']].map(function(x){return '<button type="button" data-tv="'+x[0]+'" aria-pressed="'+((c.vol||3)===x[0])+'">'+x[1]+'</button>'}).join('')+'</div><button type="button" class="btn ghost sm" data-act="tsound" style="margin-top:10px;width:100%">소리 들어보기</button><label class="check" style="margin-top:14px"><input type="checkbox" data-act="tvoice"'+(c.voice!==false?' checked':'')+'>말로 응원하기 (음성)</label><label class="check" style="margin-top:10px"><input type="checkbox" data-act="tfullstart"'+(c.full!==false?' checked':'')+'>시작하면 화면 꽉 채우기</label></div>';
+  h+='<div class="card"><h3>알림음과 화면</h3><div class="splab" style="margin:0 0 8px">알림음 크기</div><div class="seg3">'+[[1,'보통'],[2,'크게'],[3,'최대']].map(function(x){return '<button type="button" data-tv="'+x[0]+'" aria-pressed="'+((c.vol||3)===x[0])+'">'+x[1]+'</button>'}).join('')+'</div><button type="button" class="btn ghost sm" data-act="tsound" style="margin-top:10px;width:100%">소리 들어보기</button><label class="check" style="margin-top:14px"><input type="checkbox" data-act="tfullstart"'+(c.full!==false?' checked':'')+'>시작하면 화면 꽉 채우기</label></div>';
   return h}
 function tmrRefreshCfg(){var tc=document.getElementById('tcfg');if(tc)tc.innerHTML=timerCfgHtml();T.phase='idle';T.left=T.cfg.work;T.set=1;tmrPaint()}
 function tmrLocked(){return T.phase!=='idle'&&T.phase!=='done'}
@@ -1271,9 +1258,8 @@ document.addEventListener('click',function(e){
   else if(a==='pushoff'){var sb=S.push.sub;var ep=sb&&sb.endpoint;Promise.resolve(sb&&sb.unsubscribe()).catch(function(){}).then(function(){return ep?rpc('gb_push_remove',{p_token:S.token,p_endpoint:ep}):null}).then(function(){S.push.on=false;S.push.sub=null;paintPush();toast('알림을 껐어요')},fail)}
   else if(a==='tstart'){tmrStart()}
   else if(a==='tfull'){T.full=!T.full;tmrPaint()}
-  else if(a==='tvoice'){T.cfg.voice=!(T.cfg.voice!==false);tmrCfgSave();var tcv2=document.getElementById('tcfg');if(tcv2)tcv2.innerHTML=timerCfgHtml();if(T.cfg.voice!==false)say('start',0,true);else sayStop()}
   else if(a==='tfullstart'){T.cfg.full=!(T.cfg.full!==false);tmrCfgSave();var tcf=document.getElementById('tcfg');if(tcf)tcf.innerHTML=timerCfgHtml()}
-  else if(a==='tsound'){audioCtx();snd().tick();setTimeout(function(){snd().tick()},900);setTimeout(function(){snd().start()},1900);setTimeout(function(){snd().rest()},3400);setTimeout(function(){say('start',0,true)},4700);buzz([200,80,200])}
+  else if(a==='tsound'){audioCtx();snd().tick();setTimeout(function(){snd().tick()},900);setTimeout(function(){snd().start()},1900);setTimeout(function(){snd().rest()},3400);buzz([200,80,200])}
   else if(a==='tskip'){if(T.phase==='idle'||T.phase==='done')return;if(!T.run){T.end=Date.now()}nextPhase();if(T.run)T.last=Date.now();tmrPaint()}
   else if(a==='treset'){tmrStop(false)}
   else if(a==='sheet'){S.sheet=true;render(true)}
@@ -1353,14 +1339,21 @@ var CH=[
 ];
 var QUOTES=['떨어져도 괜찮아. 다시 잡으면 돼.','오늘 잡은 한 홀드가 내일의 루트가 된다.','손이 기억한다. 몸이 따라온다.','NEVER GIVE UP. 掌握.','쉬운 루트는 기억에 남지 않는다.','한 번 더. 딱 한 번만 더.','벽 앞에서 망설인 시간이 제일 아깝다.','완등은 한 손씩 쌓는 것.','어제의 나를 오늘 넘는다.','쉬어도 된다. 포기만 하지 마라.','GRAB ON. 끝까지 잡아.','오늘의 땀이 내일의 그립이다.','팔이 길면 유리하고, 포기하면 불리하다.','오늘 안 가면 내일 두 배로 간다.','루트 파인딩은 인생 파인딩.','발 먼저, 손은 그다음.','쉬는 날의 근육은 일하는 중이다.','손바닥 굳은살은 훈장이다.','손이 안 닿으면 발로 가라.','실패 열 번이면 성공 직전이다.','벽은 도망 안 간다. 내가 올라갈 뿐.','오늘 운동한 나, 어제의 나보다 멋지다.','초크 한 번에 용기 한 스푼.','완등 후 내려다보는 맛에 산다.'];
 function quote(){return QUOTES[Math.floor(Date.now()/86400000)%QUOTES.length]}
-var TXL={idle:['준비됐나. 잡아.','오늘은 어떤 루트를 부술까.','스트레칭은 했지? 안 했으면 지금.','손바닥에 초크 묻혔나.','시작 버튼은 겁이 많다. 눌러줘라.'],
-ready:['숨 고르고, 간다.','3, 2, 1... 매달려!','심장아, 조용히 해.','신발 끈 묶어. 아니, 클라이밍화 말고.'],
-work:['NEVER GIVE UP','팔이 우는 건 성장 중이라는 뜻.','지금 포기하면 팔만 아깝다.','턱 올려! 턱!','떨어지면 다시 잡으면 돼.','근육: "살려줘" / 정신: "더."','이 한 번이 내일의 완등.','아프냐? 잘하고 있다는 뜻.','팔은 빌린 거 아니다. 더 써라.','후회는 쉬는 시간에 해.','그립이 널 믿는다.'],
+var TXL={idle:['준비됐나. 잡아.','오늘은 어떤 루트를 부술까.','스트레칭은 했지? 안 했으면 지금.','손바닥에 초크 묻혔나.','시작 버튼은 겁이 많다. 눌러줘라.','벽이 기다린다.','중력, 오늘 한 판 붙자.'],
+ready:['숨 고르고, 간다.','3, 2, 1... 매달려!','심장아, 조용히 해.','곧 시작이다. 손 풀어.','이제 장악 들어간다.'],
+work:['이겨내.','가자.','할 수 있어.','하나 더 잡으러 가자.','NEVER GIVE UP','팔이 우는 건 성장 중이라는 뜻.','손 놓지 마. 벽이 웃는다.','홀드는 도망 안 가. 잡아.','중력? 이겨라.','턱 올려! 턱!','근육: "살려줘" / 정신: "더."','아프냐? 잘하고 있다는 뜻.','팔은 빌린 거 아니다. 써라.','후회는 쉬는 시간에 해.','지금이 진짜야.','포기는 없다. 근육만 운다.','반 넘었다. 끝까지 잡아.','한 번 더. 딱 한 번만.','그립이 널 믿는다.'],
 pause:['멈춘 건 잠깐이다.','일시정지는 포기가 아니다.','벌써 쉬어? ...그래 쉬자.'],
-rest:['숨 고르고, 다시 간다.','물 한 모금, 어깨 힘 빼기.','쉬는 것도 운동이다. 진짜로.','곧 또 매달린다. 마음의 준비.','초크 다시 묻혀.','손바닥 털고 쉬어라.'],
+rest:['숨 고르고, 다시 잡는다.','물 한 모금, 어깨 힘 빼.','쉬는 것도 운동이다. 진짜로.','곧 또 매달린다. 마음의 준비.','초크 다시 묻혀.','손바닥 털고 쉬어라.','어깨 힘 빼. 팔 살려라.','숨은 코로, 마음은 벽으로.'],
 restpause:['잠깐, 정비 중.','쉬는 시간도 멈췄다. 푹 쉬어.'],
-done:['오늘도 장악했다.','수고했다. 오늘의 나, 합격.','내일 팔 아프면 오늘 잘한 거다.','단백질 먹으러 가자.','샤워하면 천국이다.']};
-function pickTx(k){var a=TXL[k];if(T.qk!==k+'|'+T.set+'|'+T.runId){T.qk=k+'|'+T.set+'|'+T.runId;T.qt=a[Math.floor(Math.random()*a.length)]}return T.qt}
+done:['오늘도 장악했다.','수고했다. 오늘의 나, 합격.','내일 팔 아프면 오늘 이긴 거다.','단백질 먹으러 가자.','샤워하면 천국이다.','벽은 오늘도 졌다.']};
+var TXC={idle:['준비됐어요~? 출발해요!','오늘도 같이 해요, 파이팅!','손바닥 준비 완료~?','초크 묻혔나요~? 꼬옥!','시작 버튼 눌러주세요~ 두근두근','오늘은 몇 세트 갈까요~?'],
+ready:['곧 시작해요~ 두근두근!','숨 한 번 후~ 하고!','3, 2, 1~ 매달려요!','손 털털~ 준비해요!'],
+work:['운동 시작! 할 수 있다~!','영차영차~ 할 수 있다!','가자가자~ 할 수 있다~!','꼬옥 잡아요~ 꼬옥!','팔아 힘내라~ 힘!','조금만 더~ 거의 다 왔어!','잘하고 있어요~ 최고!','손아 놓치지 마요~!','포기는 없어요~ 꼭!','반 넘었어요~ 짝짝!','와~ 팔 튼튼해지는 중!','오늘도 멋져요~ 진짜로!','힘들면 웃어요~ 헤헷','한 번만 더~ 한 번만!'],
+pause:['잠깐 멈췄어요~ 괜찮아요!','쉬어도 돼요~ 다시 가요!','어라~ 쉬는 중?'],
+rest:['잠깐 쉬자~ 후~','물 한 모금~ 꿀꺽!','손바닥 털털~ 쉬는 시간!','팔아 수고했어~ 토닥토닥','숨 고르기~ 후하~','잠깐 멍~ 때려요~','쉬는 것도 운동이에요~ 진짜!'],
+restpause:['푹 쉬어요~ 멈췄어요!','쉬는 시간도 멈췄어요~ 꿀잠~'],
+done:['다 했다~! 오늘도 최고!','우와~ 완등이다! 짝짝짝!','수고했어요~ 간식 먹으러 가요!','오늘도 해냈다~ 멋져요!','내일 팔 아프면 잘한 거예요~','오늘의 나, 칭찬해요~ 최고!']};
+function pickTx(k){var a=(skin()==='cute'?TXC:TXL)[k];var now=Date.now();if(T.rk!==k+skin()||now-(T.rt||0)>6500||a.indexOf(T.qt)<0){var t,n=0;do{t=a[Math.floor(Math.random()*a.length)]}while(t===T.qt&&a.length>1&&n++<9);T.qt=t;T.rk=k+skin();T.rt=now}return T.qt}
 function coolTx(){var p=T.phase;if(p==='idle')return pickTx('idle');if(p==='ready')return pickTx('ready');if(p==='work')return pickTx(T.run?'work':'pause');if(p==='rest')return pickTx(T.run?'rest':'restpause');return pickTx('done')}
 function partner(){try{var v=localStorage.getItem('gb_char');return CH.some(function(c){return c[0]===v})?v:'chalk'}catch(e){return 'chalk'}}
 function chFace(kind,x,y,k){
@@ -1412,7 +1405,7 @@ function applyFs(){var z=FS[fsLevel()];document.documentElement.style.zoom=Strin
 function fsBtn(){return '<button class="btn ghost sm fsb" data-act="fs" aria-label="글씨 크기 바꾸기. 지금은 '+FSN[fsLevel()]+'"><i style="font-size:13px">가</i><i style="font-size:20px">가</i><span style="margin-left:6px">글씨 크기</span></button>'}
 applyFs();
 /* ---------- 자동 업데이트: 앱을 켜거나 다시 열 때마다 새 버전 확인 ---------- */
-var APP_V='gb-v43',reloading=false,pendingUpdate=false;
+var APP_V='gb-v44',reloading=false,pendingUpdate=false;
 function applyUpdate(){if(reloading)return;if(T.run){pendingUpdate=true;return}var a=document.activeElement;
   if(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)&&S.session){pendingUpdate=true;return}
   reloading=true;try{flush()}catch(e){}toast('새 버전으로 업데이트해요');setTimeout(function(){location.reload()},700)}

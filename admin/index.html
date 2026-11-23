@@ -619,6 +619,17 @@ html[data-skin="cute"] .seg4 button[aria-pressed=true]{background:var(--accent);
 .tmr.full .tmasbox{margin-bottom:6px!important}
 
 .tmasbox .tbub{min-height:3.2em;display:flex!important;align-items:center}
+
+.grow{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line)}
+.grow i{flex:none;width:18px;height:18px;border-radius:50%;margin-top:3px}
+.grow b{display:block;font-size:16px}
+.grow span{display:block;font-size:14.5px;color:var(--mute);line-height:1.45;margin-top:2px}
+.gseg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.gseg button{border:2px solid var(--line);background:var(--surface);color:var(--ink);font-weight:800;font-size:15px;min-height:48px;border-radius:12px;padding:0}
+.gseg button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+html[data-skin="cute"] .gseg button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.rlh{font-size:13.5px;color:var(--panel-mute,var(--mute));margin-top:6px}
+.ringbtn{-webkit-tap-highlight-color:transparent}
 </style>
 </head><body>
 <div class="wrap" id="app"><div class="center"><h2>불러오는 중…</h2></div></div>
@@ -946,8 +957,8 @@ function heroHtml(){
   var cute=(skin()==='cute');var hs=cute?(wc>=g?'보너스 라운드, 가볼까요?':att?'손바닥이 단단해졌어요':'출석부터 눌러 볼까요?'):quote();
   var wsn=weekStreak(map,g);
   return '<div class="hero2"><div class="top"><div><span class="mas" aria-hidden="true">'+masSvg('smile',54)+'</span><div class="hi"><span class="nb">'+esc(hi[0])+'</span> <span class="nb">'+esc(hi[1])+'</span></div><div class="hs">'+esc(hs)+'</div></div>'+
-   '<button class="ringbtn" data-act="goal" aria-label="활동 링. 눌러서 주간 목표 바꾸기 (현재 주 '+g+'회)"><svg viewBox="0 0 100 100">'+ringArc(44,6,wc/g,'var(--ring1)')+ringArc(33,6,tmin/60,'var(--ring2)')+ringArc(22,6,tk/400,'var(--ring3)')+'</svg></button></div>'+
-   '<div class="rl"><i style="color:var(--ring1)">●</i> 이번 주 '+wc+'/'+g+'회 &nbsp;<i style="color:var(--ring2)">●</i> 오늘 '+tmin+'/60분 &nbsp;<i style="color:var(--ring3)">●</i> 오늘 '+Math.round(tk)+'/400kcal</div>'+
+   '<div class="ringbtn" role="img" aria-label="활동 링. 이번 주 출석 '+wc+'회 중 목표 '+g+'회, 오늘 운동 '+tmin+'분, 오늘 '+Math.round(tk)+'칼로리"><svg viewBox="0 0 100 100">'+ringArc(44,6,wc/g,'var(--ring1)')+ringArc(33,6,tmin/60,'var(--ring2)')+ringArc(22,6,tk/400,'var(--ring3)')+'</svg></div></div>'+
+   '<div class="rl"><i style="color:var(--ring1)">●</i> 이번 주 출석 '+wc+'/'+g+'회 &nbsp;<i style="color:var(--ring2)">●</i> 오늘 운동 '+tmin+'/60분 &nbsp;<i style="color:var(--ring3)">●</i> 오늘 소모 '+Math.round(tk)+'/400kcal</div>'+
    '<div class="hstats"><div><b><svg class="flame" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 5 6 5 11a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-4-1-6 1-10z"/></svg>'+st+'</b><span>연속 출석</span></div><div><b>'+attRate(map,TODAY.slice(0,7))+'%</b><span>출석률</span></div><div><b>'+Math.round(mk).toLocaleString('ko-KR')+'</b><span>이번 달 kcal</span></div></div>'+
    levelHtml(t.days)+'<div class="wdots">'+['월','화','수','목','금','토','일'].map(function(dn,i){var dk=shiftDay(weekStart(TODAY),i);return '<div class="'+((map[dk]&&map[dk].attended)?'on ':'')+(dk===TODAY?'td':'')+'"><i></i>'+dn+'</div>'}).join('')+'</div><div class="hline">이번 달 '+esc(equiv(mk))+'</div>'+(wsn>0?'<div class="hline" style="margin-top:2px">'+wsn+'주 연속 목표 달성</div>':'')+'</div>';
 }
@@ -1225,8 +1236,9 @@ document.addEventListener('input',function(e){
   else if(t.dataset.i){setPath(S.draft.items,t.dataset.i,t.value);touched()}
 });
 document.addEventListener('click',function(e){
-  var el=e.target.closest('[data-act],[data-tab],[data-date],[data-mem],[data-v],[data-chip],[data-item],[data-memday],[data-step],[data-mf],[data-qr],[data-gr],[data-ts],[data-tq],[data-tm],[data-tl],[data-sk],[data-sp],[data-sf],[data-sc],[data-tv],[data-tsn],[data-sm]');if(!el)return;
+  var el=e.target.closest('[data-act],[data-tab],[data-date],[data-mem],[data-v],[data-chip],[data-item],[data-memday],[data-step],[data-mf],[data-qr],[data-gr],[data-ts],[data-tq],[data-tm],[data-tl],[data-sk],[data-sp],[data-sf],[data-sc],[data-tv],[data-tsn],[data-sm],[data-gl]');if(!el)return;
   if(el.dataset.sm){try{localStorage.setItem('gb_mas',el.dataset.sm)}catch(er){}applySkin();render(true);return}
+  if(el.dataset.gl){var ng=+el.dataset.gl;try{localStorage.setItem('gb_goal',String(ng))}catch(er){}render(true);toast('주간 목표를 '+ng+'회로 정했어요');return}
   if(el.dataset.tsn){T.cfg.snd=el.dataset.tsn;tmrCfgSave();var tcs=document.getElementById('tcfg');if(tcs)tcs.innerHTML=timerCfgHtml();audioCtx();snd().start();return}
   if(el.dataset.tv){T.cfg.vol=+el.dataset.tv;tmrCfgSave();var tcv=document.getElementById('tcfg');if(tcv)tcv.innerHTML=timerCfgHtml();audioCtx();snd().tick();return}
   if(el.dataset.sc){try{localStorage.setItem('gb_char',el.dataset.sc)}catch(er){}render(true);var cn=CH.filter(function(c){return c[0]===el.dataset.sc})[0];toast('짝꿍: '+(cn?cn[1]:''));return}
@@ -1271,7 +1283,7 @@ document.addEventListener('click',function(e){
   else if(a==='sheetclose'){if(el.classList.contains('sheet')&&e.target!==el)return;S.sheet=false;render(true)}
   else if(a==='skin'){var nk=skin()==='cute'?'cool':'cute';try{localStorage.setItem('gb_skin',nk)}catch(er){}applySkin();render(true);toast(nk==='cute'?'귀여운 버전이에요':'간지 버전이에요')}
   else if(a==='fs'){var nf=(fsLevel()+1)%3;try{localStorage.setItem('gb_fs',String(nf))}catch(er){}applyFs();toast('글씨 크기: '+FSN[nf])}
-  else if(a==='goal'){var ng=goalN()+1;if(ng>7)ng=1;try{localStorage.setItem('gb_goal',String(ng))}catch(er){}render(true);toast('주간 목표를 '+ng+'회로 바꿨어요')}
+  
   else if(a==='copyprev'){ensureDraft();var pd=prevItemsDay();if(!pd)return;S.draft.items=JSON.parse(JSON.stringify(S.days[pd].items));touched();render(true);toast(pd.slice(5).replace('-','/')+' 운동을 불러왔어요. 시간만 고쳐 주세요')}
   else if(a==='brag'){var tt=totals(S.days);var bm=S.brag+'! 출석 '+(tt.days+(S.days[S.date]&&S.days[S.date].attended?0:1))+'회째';el.disabled=true;
     rpc('gb_chat_post',{p_token:S.token,p_body:bm,p_notice:false}).then(function(){S.brag='';try{localStorage.setItem('gb_hello','1')}catch(er){}toast('채팅방에 자랑했어요');render(true);pollChat()},function(er){el.disabled=false;toast(errText(er))})}
@@ -1402,7 +1414,11 @@ function sheetHtml(){if(!S.sheet)return '';var k=skin(),p=palOf(k),f=fsLevel();
    '<div class="splab">분위기</div>'+seg([['cool','간지'],['cute','귀여움']],k,'data-sk')+
    '<div class="splab">색상</div><div class="pals">'+PALS[k].map(function(x){return '<button type="button" class="pal" data-sp="'+x[0]+'" aria-pressed="'+(x[0]===p)+'"><span class="swc"><i style="background:'+x[2]+'"></i><i style="background:'+x[3]+'"></i></span>'+x[1]+'</button>'}).join('')+'</div>'+
    '<div class="splab">내 짝꿍</div><div class="chars">'+CH.map(function(c){return '<button type="button" class="chb" data-sc="'+c[0]+'" aria-pressed="'+(c[0]===partner())+'"><span class="cp" style="background:'+c[2]+'">'+masSvg('smile',40,c[0])+'</span>'+c[1]+'</button>'}).join('')+'</div>'+'<div style="margin-top:10px">'+seg([['on','짝꿍 보이기'],['off','숨기기']],showMas()?'on':'off','data-sm')+'</div>'+
-   '<div class="splab">글씨 크기</div>'+seg([['0','보통'],['1','크게'],['2','아주 크게']],String(f),'data-sf')+'</div></div>'}
+   '<div class="splab">글씨 크기</div>'+seg([['0','보통'],['1','크게'],['2','아주 크게']],String(f),'data-sf')+
+   '<div class="splab">주간 출석 목표</div><div class="gseg">'+[1,2,3,4,5,6,7].map(function(n){return '<button type="button" data-gl="'+n+'" aria-pressed="'+(n===goalN())+'">'+n+'회</button>'}).join('')+'</div>'+
+   '<div class="grow"><i style="background:var(--ring1)"></i><div><b>바깥 링 · 이번 주 출석</b><span>일주일에 센터에 온 횟수예요. 위에서 정한 목표를 채우면 한 바퀴!</span></div></div>'+
+   '<div class="grow"><i style="background:var(--ring2)"></i><div><b>가운데 링 · 오늘 운동 시간</b><span>60분이면 한 바퀴!</span></div></div>'+
+   '<div class="grow"><i style="background:var(--ring3)"></i><div><b>안쪽 링 · 오늘 소모 칼로리</b><span>400kcal면 한 바퀴! (칼로리는 추정치예요)</span></div></div></div></div>'}
 function skinBtn(){return '<button class="btn ghost sm" data-act="skin" aria-label="화면 분위기 바꾸기">'+(skin()==='cute'?'간지 버전':'귀여운 버전')+'</button>'}
 applySkin();
 /* ---------- 글씨 크기 ---------- */
@@ -1412,7 +1428,7 @@ function applyFs(){var z=FS[fsLevel()];document.documentElement.style.zoom=Strin
 function fsBtn(){return '<button class="btn ghost sm fsb" data-act="fs" aria-label="글씨 크기 바꾸기. 지금은 '+FSN[fsLevel()]+'"><i style="font-size:13px">가</i><i style="font-size:20px">가</i><span style="margin-left:6px">글씨 크기</span></button>'}
 applyFs();
 /* ---------- 자동 업데이트: 앱을 켜거나 다시 열 때마다 새 버전 확인 ---------- */
-var APP_V='gb-v46',reloading=false,pendingUpdate=false;
+var APP_V='gb-v47',reloading=false,pendingUpdate=false;
 function applyUpdate(){if(reloading)return;if(T.run){pendingUpdate=true;return}var a=document.activeElement;
   if(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)&&S.session){pendingUpdate=true;return}
   reloading=true;try{flush()}catch(e){}toast('새 버전으로 업데이트해요');setTimeout(function(){location.reload()},700)}

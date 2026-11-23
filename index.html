@@ -1064,7 +1064,7 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&S.t
 
 
 /* ---------- 푸시 알림 ---------- */
-S.push={sup:false,perm:'default',on:false,chat:false,ready:false,sub:null};
+S.push={sup:false,perm:'default',on:false,chat:false,notice:true,sound:true,ready:false,sub:null};
 function pushSupported(){return 'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window}
 function u8(b64){var p='='.repeat((4-b64.length%4)%4);var r=atob((b64+p).replace(/-/g,'+').replace(/_/g,'/'));var o=new Uint8Array(r.length);for(var i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o}
 function pushInner(){var P=S.push;var ios=/iphone|ipad|ipod/i.test(navigator.userAgent||'');
@@ -1073,7 +1073,11 @@ function pushInner(){var P=S.push;var ios=/iphone|ipad|ipod/i.test(navigator.use
   if(!P.sup){h+='<p style="margin:0">'+(ios&&!isStandalone()?'아이폰은 <b>홈 화면에 추가한 앱</b>에서만 알림을 켤 수 있어요. 위의 설치 방법으로 추가한 뒤 앱에서 다시 열어 주세요.':'이 브라우저는 알림을 지원하지 않아요.')+'</p>'}
   else if(P.perm==='denied'){h+='<p style="margin:0">알림이 차단되어 있어요. 폰 설정에서 GRABON 알림을 허용해 주세요.</p>'}
   else if(!P.on){h+='<p class="sub" style="margin:0 0 10px">공지가 올라오면 앱을 닫아 둬도 알려 드려요.</p><button class="btn acc" data-act="pushon">알림 켜기</button>'}
-  else{h+='<p style="margin:0 0 10px"><b>공지 알림이 켜져 있어요.</b></p><label class="check" style="margin-bottom:12px"><input type="checkbox" data-act="pushchat"'+(P.chat?' checked':'')+'>채팅 새 글도 알림 받기</label><button class="btn ghost sm" data-act="pushoff">알림 끄기</button>'}
+  else{h+='<p style="margin:0 0 12px"><b>알림이 켜져 있어요.</b> <span class="sub">앱을 닫아 둬도 폰 상단 상태바에 떠요.</span></p>'+
+    '<label class="check" style="margin-bottom:12px"><input type="checkbox" data-act="pushnotice"'+(P.notice!==false?' checked':'')+'>공지 알림</label>'+
+    '<label class="check" style="margin-bottom:12px"><input type="checkbox" data-act="pushchat"'+(P.chat?' checked':'')+'>채팅 새 글 알림</label>'+
+    '<label class="check" style="margin-bottom:6px"><input type="checkbox" data-act="pushsound"'+(P.sound!==false?' checked':'')+'>알림 소리</label>'+
+    '<p class="sub" style="margin:0 0 14px">소리를 끄면 상태바에만 조용히 표시돼요.</p><button class="btn ghost sm" data-act="pushoff">알림 전체 끄기</button>'}
   return h+'</div>'}
 function pushHtml(){return '<div id="pushbox">'+pushInner()+'</div>'}
 function paintPush(){var el=document.getElementById('pushbox');if(el)el.innerHTML=pushInner()}
@@ -1081,12 +1085,12 @@ function loadPush(){var P=S.push;P.sup=pushSupported();P.perm=P.sup?Notification
   if(!P.sup||!S.token){P.ready=true;paintPush();return}
   navigator.serviceWorker.getRegistration().then(function(reg){return reg?reg.pushManager.getSubscription():null}).then(function(sub){P.sub=sub;
     if(!sub){P.on=false;P.ready=true;paintPush();return}
-    return rpc('gb_push_get',{p_token:S.token,p_endpoint:sub.endpoint}).then(function(r){P.on=!!r.on;P.chat=!!r.chat;P.ready=true;paintPush()})}).catch(function(){P.ready=true;paintPush()})}
+    return rpc('gb_push_get',{p_token:S.token,p_endpoint:sub.endpoint}).then(function(r){P.on=!!r.on;P.chat=!!r.chat;P.notice=r.notice!==false;P.sound=r.sound!==false;P.ready=true;paintPush()})}).catch(function(){P.ready=true;paintPush()})}
 function enablePush(){
   Notification.requestPermission().then(function(p){S.push.perm=p;if(p!=='granted'){paintPush();toast('알림이 허용되지 않았어요');return}
     return rpc('gb_push_key').then(function(key){if(!key){toast('알림 서버를 준비 중이에요. 잠시 뒤 다시 시도해 주세요');return}
       return navigator.serviceWorker.ready.then(function(reg){return reg.pushManager.getSubscription().then(function(old){return old||reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(key)})})}).then(function(sub){var j=sub.toJSON();S.push.sub=sub;
-        return rpc('gb_push_save',{p_token:S.token,p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth}).then(function(r){S.push.on=true;S.push.chat=!!r.chat;paintPush();toast('공지 알림을 켰어요')})})})
+        return rpc('gb_push_save',{p_token:S.token,p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth}).then(function(r){S.push.on=true;S.push.chat=!!r.chat;S.push.notice=r.notice!==false;S.push.sound=r.sound!==false;paintPush();toast('알림을 켰어요')})})})
   }).catch(function(e){toast('알림을 켜지 못했어요'+(e&&e.message?': '+e.message:''))})}
 
 
@@ -1255,7 +1259,7 @@ document.addEventListener('click',function(e){
   else if(a==='newnotice'){S.tab='chat';chatReload();render();var cn2=document.getElementById('c-notice');if(cn2)cn2.checked=true;var cb2=document.getElementById('c-body');if(cb2)cb2.focus();window.scrollTo(0,document.body.scrollHeight)}
   else if(a==='kudos'){var kt=el.dataset.to;rpc('gb_kudos_toggle',{p_token:S.token,p_day:TODAY,p_to:kt}).then(loadFeed,fail)}
   else if(a==='pushon'){enablePush()}
-  else if(a==='pushchat'){var pc=!S.push.chat;if(!S.push.sub)return;rpc('gb_push_prefs',{p_token:S.token,p_endpoint:S.push.sub.endpoint,p_chat:pc}).then(function(){S.push.chat=pc;paintPush();toast(pc?'채팅 새 글도 알려 드려요':'공지만 알려 드려요')},function(er){paintPush();fail(er)})}
+  else if(a==='pushchat'||a==='pushnotice'||a==='pushsound'){var pk=a==='pushchat'?'chat':a==='pushnotice'?'notice':'sound';var pv=!(pk==='chat'?S.push.chat:S.push[pk]!==false);if(!S.push.sub)return;var pa={p_token:S.token,p_endpoint:S.push.sub.endpoint};pa['p_'+pk]=pv;rpc('gb_push_prefs',pa).then(function(){S.push[pk]=pv;paintPush();toast((pk==='chat'?'채팅 알림':pk==='notice'?'공지 알림':'알림 소리')+(pv?' 켰어요':' 껐어요'))},function(er){paintPush();fail(er)})}
   else if(a==='pushoff'){var sb=S.push.sub;var ep=sb&&sb.endpoint;Promise.resolve(sb&&sb.unsubscribe()).catch(function(){}).then(function(){return ep?rpc('gb_push_remove',{p_token:S.token,p_endpoint:ep}):null}).then(function(){S.push.on=false;S.push.sub=null;paintPush();toast('알림을 껐어요')},fail)}
   else if(a==='tstart'){tmrStart()}
   else if(a==='tfull'){T.full=!T.full;tmrPaint()}
@@ -1408,7 +1412,7 @@ function applyFs(){var z=FS[fsLevel()];document.documentElement.style.zoom=Strin
 function fsBtn(){return '<button class="btn ghost sm fsb" data-act="fs" aria-label="글씨 크기 바꾸기. 지금은 '+FSN[fsLevel()]+'"><i style="font-size:13px">가</i><i style="font-size:20px">가</i><span style="margin-left:6px">글씨 크기</span></button>'}
 applyFs();
 /* ---------- 자동 업데이트: 앱을 켜거나 다시 열 때마다 새 버전 확인 ---------- */
-var APP_V='gb-v45',reloading=false,pendingUpdate=false;
+var APP_V='gb-v46',reloading=false,pendingUpdate=false;
 function applyUpdate(){if(reloading)return;if(T.run){pendingUpdate=true;return}var a=document.activeElement;
   if(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)&&S.session){pendingUpdate=true;return}
   reloading=true;try{flush()}catch(e){}toast('새 버전으로 업데이트해요');setTimeout(function(){location.reload()},700)}

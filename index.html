@@ -1113,8 +1113,14 @@ var SND={
  tabata:{start:function(){alarmLong(1760,1.0)},rest:function(){alarm(2,1320,.3,.46)},done:function(){alarmLong(1760,.6);setTimeout(function(){alarmLong(1760,.6)},850);setTimeout(function(){alarmLong(2093,1.4)},1700)},tick:function(){tone(1568,.28,.6,'square')}}
 };
 /* ---- 말로 응원 (음성) ---- */
-var VL={cute:{start:['운동 시작! 할 수 있다~!','시작~! 할 수 있다!','가자~! 할 수 있다~!','영차영차! 할 수 있다~!','좋았어~ 시작!'],mid:['조금만 더~!','잘하고 있어~!','힘내라 힘~!','거의 다 왔어~!'],rest:['잠깐 쉬자~','수고했어~ 후~','물 한 모금~','숨 고르기~'],done:['다 했다~! 최고야!','우와~ 오늘도 성공!','짝짝짝~ 수고했어요!']},
- cool:{start:['이겨내.','가자.','할 수 있어.','하나 더 잡으러 가자.','손 놓지 마.','끝까지 잡아.','오늘도 장악.','한 번 더.'],mid:['버텨.','아직 안 끝났어.','지금이 진짜야.','포기는 없다.'],rest:['숨 고르고, 다시 잡는다.','물 마시고 와.','어깨 힘 빼.','곧 다시 간다.'],done:['장악 완료.','오늘도 잡았다.','수고했다. 잘 잡았어.']}};
+var VL={cute:{start:['운동 시작! 할 수 있다~!','영차영차~ 할 수 있다!','가자가자~ 할 수 있다~!','손바닥 준비됐지? 출발~!','초크 묻혔지? 매달려~!','좋았어~ 꼬옥 잡아요!','우리 같이 해요~ 파이팅!','오늘도 한 번 매달려 볼까요~?','심호흡 하고~ 출발~!'],
+ mid:['조금만 더~ 거의 다 왔어!','잘하고 있어요~ 최고!','팔아 힘내라~ 힘!','포기는 없어요~ 꼬옥!','반 넘었어요~ 짝짝!','손아 놓치지 마요~!'],
+ rest:['잠깐 쉬자~ 후~','물 한 모금~ 꿀꺽!','손바닥 털털~ 쉬는 시간!','팔아 수고했어~ 토닥토닥','숨 고르기~ 후하~','잠깐 멍~ 때려요~'],
+ done:['다 했다~! 오늘도 최고!','우와~ 완등이다! 짝짝짝!','수고했어요~ 간식 먹으러 가요!','오늘도 해냈다~ 멋져요!','내일 팔 아프면 잘한 거예요~']},
+ cool:{start:['이겨내.','가자.','할 수 있어.','하나 더 잡으러 가자.','손 놓지 마. 벽이 웃는다.','홀드는 도망 안 가. 잡아.','중력? 이겨라.','지금부터 장악.','팔은 빌린 거 아니다. 써라.','아프면 잘하고 있는 거다.','한 번 더. 딱 한 번만.'],
+ mid:['버텨. 팔이 우는 건 성장이다.','아직 안 끝났어.','지금이 진짜야.','포기는 없다. 근육만 운다.','중력한테 지지 마.','반 넘었다. 끝까지 잡아.'],
+ rest:['숨 고르고, 다시 잡는다.','물 마시고 와. 곧 다시 간다.','어깨 힘 빼. 팔 살려라.','쉬는 것도 운동이다. 진짜로.','초크 다시 묻혀.','후회는 쉬는 시간에 해.'],
+ done:['장악 완료.','오늘도 잡았다. 중력은 졌다.','수고했다. 단백질 먹으러 가자.','내일 팔 아프면 오늘 이긴 거다.','벽은 오늘도 졌다.']}};
 function koVoice(){try{var v=speechSynthesis.getVoices();for(var i=0;i<v.length;i++)if(/^ko/i.test(v[i].lang))return v[i]}catch(e){}return null}
 function sayNow(text){try{if(!window.speechSynthesis)return;var u=new SpeechSynthesisUtterance(text);u.lang='ko-KR';var v=koVoice();if(v)u.voice=v;var cute=skin()==='cute';u.rate=cute?1.05:.95;u.pitch=cute?1.5:.8;u.volume=1;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
 function say(kind,delay){if(T.cfg.voice===false)return;var a=VL[skin()==='cute'?'cute':'cool'][kind];if(!a)return;var t=a[Math.floor(Math.random()*a.length)];if(t===T.lastSay&&a.length>1)t=a[(a.indexOf(t)+1)%a.length];T.lastSay=t;var tok=T.vtok=(T.vtok||0)+1;setTimeout(function(){if(T.vtok===tok)sayNow(t)},delay||0)}
@@ -1405,7 +1411,7 @@ function applyFs(){var z=FS[fsLevel()];document.documentElement.style.zoom=Strin
 function fsBtn(){return '<button class="btn ghost sm fsb" data-act="fs" aria-label="글씨 크기 바꾸기. 지금은 '+FSN[fsLevel()]+'"><i style="font-size:13px">가</i><i style="font-size:20px">가</i><span style="margin-left:6px">글씨 크기</span></button>'}
 applyFs();
 /* ---------- 자동 업데이트: 앱을 켜거나 다시 열 때마다 새 버전 확인 ---------- */
-var APP_V='gb-v40',reloading=false,pendingUpdate=false;
+var APP_V='gb-v41',reloading=false,pendingUpdate=false;
 function applyUpdate(){if(reloading)return;if(T.run){pendingUpdate=true;return}var a=document.activeElement;
   if(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)&&S.session){pendingUpdate=true;return}
   reloading=true;try{flush()}catch(e){}toast('새 버전으로 업데이트해요');setTimeout(function(){location.reload()},700)}

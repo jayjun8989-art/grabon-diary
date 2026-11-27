@@ -630,6 +630,30 @@ html[data-skin="cute"] .seg4 button[aria-pressed=true]{background:var(--accent);
 html[data-skin="cute"] .gseg button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .rlh{font-size:13.5px;color:var(--panel-mute,var(--mute));margin-top:6px}
 .ringbtn{-webkit-tap-highlight-color:transparent}
+
+/* ---- 노트북·PC용 넓은 화면 ---- */
+@media (min-width:960px){
+ body:not(.dark-login) .wrap{max-width:1320px;padding-left:232px!important;padding-right:28px!important;padding-bottom:40px!important}
+ html body nav.tabs{top:0;bottom:0;left:0;right:auto;width:204px;display:block;padding:22px 12px;border-top:0;border-right:1px solid var(--line);box-shadow:none;overflow:auto}
+ html body nav.tabs .in{flex-direction:column;gap:4px;max-width:none}
+ html body nav.tabs .in button,html body nav.tabs .in.n6 button{flex:none;display:flex;align-items:center;gap:12px;width:100%;text-align:left;font-size:16px;font-weight:700;padding:13px 14px;border-radius:12px;box-shadow:none}
+ html body nav.tabs .in button[aria-current=page]{background:var(--soft);box-shadow:inset 3px 0 0 var(--accent)}
+ html body nav.tabs .in button svg{margin:0;width:22px;height:22px}
+ html body nav.tabs .dot{position:static;margin-left:auto}
+ header.top{flex-wrap:nowrap;border-bottom:1px solid var(--line);padding-bottom:14px!important}
+ header.top .who{display:flex;align-items:center;gap:14px}
+ header.top .who>div{margin-top:0!important}
+ .dsk2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start}
+ #mlist,.dlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));column-gap:12px}
+ #app[data-view=members] .stats,#app[data-view=day] .stats{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+ #app[data-view=day] .stats{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ #app[data-view=members] #m-search{max-width:420px}
+ .matrix table{width:100%}
+ .matrix th,.matrix td{height:34px;min-width:24px}
+ .matrix th.nm,.matrix td.nm{min-width:120px;max-width:180px}
+ #app[data-view=chat]>*:not(header):not(nav):not(.sheet),#app[data-view=timer]>*:not(header):not(nav):not(.sheet),#pushbox,#install{max-width:760px;margin-left:auto;margin-right:auto}
+ .toast{bottom:28px}
+}
 </style>
 </head><body>
 <div class="wrap" id="app"><div class="center"><h2>불러오는 중…</h2></div></div>
@@ -825,9 +849,9 @@ function viewLogin(){
   }
   return h+installHtml()+'</div>';
 }
-function viewToday(){S.date=S.date||TODAY;return heroHtml()+passHtml()+missionHtml()+feedHtml()+noticeHtml()+chatPreviewHtml()+dayNav(S.date,'dprev','dnext')+editorHtml()}
+function viewToday(){S.date=S.date||TODAY;return '<div class="dsk2"><div>'+heroHtml()+passHtml()+missionHtml()+feedHtml()+noticeHtml()+chatPreviewHtml()+'</div><div>'+dayNav(S.date,'dprev','dnext')+editorHtml()+'</div></div>'}
 function viewHistory(title){
-  return '<h2>'+(title||'내 기록')+'</h2>'+statsHtml(S.days)+weekCompare(S.days)+weekChart(S.days)+weightCard(S.days)+badgesHtml(S.days)+pyramidCard(S.days)+'<div id="lbbox">'+lbHtml()+'</div><div class="card">'+calendarHtml(S.days)+'<div class="sub" style="margin-top:10px">채워진 날 = 출석 · 테두리 = 기록만 있음 · 날짜를 누르면 그날 일지</div></div>'+dayNav(S.date,'dprev','dnext')+editorHtml();
+  return '<h2>'+(title||'내 기록')+'</h2><div class="dsk2"><div>'+statsHtml(S.days)+weekCompare(S.days)+weekChart(S.days)+weightCard(S.days)+badgesHtml(S.days)+pyramidCard(S.days)+'<div id="lbbox">'+lbHtml()+'</div><div class="card">'+calendarHtml(S.days)+'<div class="sub" style="margin-top:10px">채워진 날 = 출석 · 테두리 = 기록만 있음 · 날짜를 누르면 그날 일지</div></div></div><div>'+dayNav(S.date,'dprev','dnext')+editorHtml()+'</div></div>';
 }
 function viewMine(){return '<h2>내 일지</h2><div class="sub">관리자 본인의 운동 기록이에요.</div>'+statsHtml(S.days)+'<div class="card">'+calendarHtml(S.days)+'</div><div class="sub" style="margin-top:14px">'+pretty(S.date)+' 기록</div>'+editorHtml()}
 function daysAgo(ds){return Math.round((parse(TODAY)-parse(ds))/86400000)}
@@ -855,8 +879,8 @@ function viewMembers(){
 }
 function viewMember(){
   var m=S.roster.filter(function(x){return x.id===S.target})[0]||{name:'회원'};
-  return '<button class="btn ghost sm" data-act="back">‹ 회원 목록</button><h2>'+esc(m.name)+'</h2>'+passHtml()+statsHtml(S.days)+weekChart(S.days)+
-   '<div class="card">'+calendarHtml(S.days)+'</div>'+dayNav(S.date,'dprev','dnext')+'<div class="sub" style="margin-top:10px">관리자 수정 가능</div>'+editorHtml()+
+  return '<button class="btn ghost sm" data-act="back">‹ 회원 목록</button><h2>'+esc(m.name)+'</h2>'+passHtml()+'<div class="dsk2"><div>'+statsHtml(S.days)+weekChart(S.days)+
+   '<div class="card">'+calendarHtml(S.days)+'</div></div><div>'+dayNav(S.date,'dprev','dnext')+'<div class="sub" style="margin-top:10px">관리자 수정 가능</div>'+editorHtml()+'</div></div>'+
    '<div class="card"><h3>회원 정보 관리 <span class="pill">#'+esc(m.no||'')+'</span></h3><p class="sub" style="margin:0 0 10px">이름, 센터, 회원 정보는 그랩온 회원관리 프로그램에서 바꿔요.</p><div style="display:grid;gap:8px"><button class="btn ghost" data-act="resetpin">이 회원 기기 로그아웃시키기 (분실 시)</button></div></div>';
 }
 var matrixCache={};var matrixUnsubs=[];
@@ -866,10 +890,10 @@ function viewDay(){
   rows.sort(function(a,b){var x=(a.e&&a.e.attended?0:1)-(b.e&&b.e.attended?0:1);return x||a.m.name.localeCompare(b.m.name,'ko')});
   var h='<h2>일간 현황</h2>'+dayNav(ds,'adayprev','adaynext')+'<div class="stats" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div class="stat"><b>'+att+'</b><span>출석</span></div><div class="stat"><b>'+S.roster.length+'</b><span>전체 회원</span></div><div class="stat"><b>'+kc.toLocaleString('ko-KR')+'</b><span>kcal 합계</span></div></div>';
   if(!rows.length)h+='<div class="card"><p class="sub" style="margin:0">회원 탭에서 먼저 회원을 등록하세요.</p></div>';
-  rows.forEach(function(r){var e=r.e;var has=e&&needsConfirm(e)||(e&&e.confirmedAt);
+  h+='<div class="dlist">';rows.forEach(function(r){var e=r.e;var has=e&&needsConfirm(e)||(e&&e.confirmedAt);
     var det=e?[(e.official?'센터 출석':(e.attended?'앱 출석':'기록만')),(+e.minutes?e.minutes+'분':''),(+e.kcal?e.kcal+'kcal':''),(e.topGrade||'')].filter(Boolean).join(' · '):'기록 없음';
     h+='<div class="memrow"><button class="mem" data-memday="'+esc(r.m.id)+'"><span class="av" style="'+(e&&e.attended?'':'background:var(--soft);color:var(--mute)')+'">'+esc(r.m.name.charAt(0))+'</span><span class="t"><b>'+esc(r.m.name)+'</b><span>'+esc(det)+'</span></span>'+(has?(e.confirmedAt?'<span class="pill ok">확인</span>':'<span class="pill warn">미확인</span>'):'')+'</button>'+(e&&e.official?'<button class="btn sm ghost" disabled>센터 출석</button>':'<button class="btn sm '+(e&&e.attended?'ghost':'acc')+'" data-act="qatt" data-id="'+esc(r.m.id)+'">'+(e&&e.attended?'출석 취소':'출석 처리')+'</button>')+'</div>'});
-  return h+hourChart();
+  return h+'</div>'+hourChart();
 }
 function viewMatrix(){
   var ds=monthDates(S.month);
@@ -903,6 +927,7 @@ function render(fromMatrix){
     if(['today','history','timer','chat'].indexOf(S.tab)<0)S.tab='today';
     body=S.tab==='chat'?viewChat():S.tab==='timer'?viewTimer():S.tab==='history'?viewHistory():viewToday();
   }
+  $app.setAttribute('data-view',S.tab);
   var sy=window.scrollY;
   $app.innerHTML=topbar()+body+((S.tab==='today'||(S.tab==='members'&&!S.target))?pushHtml():'')+installHtml()+tabsHtml()+sheetHtml();
   if(role==='admin'&&!S.target&&S.tab==='members')paintMemberStats();
@@ -1217,8 +1242,8 @@ function isStandalone(){return (window.matchMedia&&matchMedia('(display-mode: st
 function installHtml(){
   if(isStandalone())return '';
   var ua=navigator.userAgent||'';var ios=/iphone|ipad|ipod/i.test(ua);
-  var h='<div class="card" id="install"><h3>핸드폰에 앱으로 설치</h3>';
-  if(installEvt)h+='<button class="btn acc" data-act="install">앱 설치하기</button><p class="sub" style="margin:8px 0 0">홈 화면에 掌握 아이콘이 생겨요.</p>';
+  var h='<div class="card" id="install"><h3>'+(matchMedia('(min-width:960px)').matches?'이 컴퓨터':'핸드폰')+'에 앱으로 설치</h3>';
+  if(installEvt)h+='<button class="btn acc" data-act="install">앱 설치하기</button><p class="sub" style="margin:8px 0 0">홈 화면(컴퓨터는 바탕화면)에 掌握 아이콘이 생겨요.</p>';
   else if(/KAKAOTALK|NAVER|Instagram|FBAN|FBAV|Line\//i.test(ua))h+='<p style="margin:0">지금은 앱 안의 브라우저로 열려 있어요. 오른쪽 위 메뉴에서 <b>다른 브라우저로 열기</b>를 눌러 '+(ios?'Safari':'Chrome')+'에서 열어 주세요.</p>';
   else if(ios)h+='<ol style="margin:0;padding-left:20px"><li>Safari 아래쪽 <b>공유 버튼</b>(네모에 화살표)</li><li><b>홈 화면에 추가</b></li><li><b>추가</b></li></ol>';
   else h+='<ol style="margin:0;padding-left:20px"><li>Chrome 오른쪽 위 <b>⋮ 메뉴</b></li><li><b>앱 설치</b> 또는 <b>홈 화면에 추가</b></li></ol>';
@@ -1428,7 +1453,7 @@ function applyFs(){var z=FS[fsLevel()];document.documentElement.style.zoom=Strin
 function fsBtn(){return '<button class="btn ghost sm fsb" data-act="fs" aria-label="글씨 크기 바꾸기. 지금은 '+FSN[fsLevel()]+'"><i style="font-size:13px">가</i><i style="font-size:20px">가</i><span style="margin-left:6px">글씨 크기</span></button>'}
 applyFs();
 /* ---------- 자동 업데이트: 앱을 켜거나 다시 열 때마다 새 버전 확인 ---------- */
-var APP_V='gb-v47',reloading=false,pendingUpdate=false;
+var APP_V='gb-v48',reloading=false,pendingUpdate=false;
 function applyUpdate(){if(reloading)return;if(T.run){pendingUpdate=true;return}var a=document.activeElement;
   if(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)&&S.session){pendingUpdate=true;return}
   reloading=true;try{flush()}catch(e){}toast('새 버전으로 업데이트해요');setTimeout(function(){location.reload()},700)}

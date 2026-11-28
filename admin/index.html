@@ -654,6 +654,12 @@ html[data-skin="cute"] .gseg button[aria-pressed=true]{background:var(--accent);
  #app[data-view=chat]>*:not(header):not(nav):not(.sheet),#app[data-view=timer]>*:not(header):not(nav):not(.sheet),#pushbox,#install{max-width:760px;margin-left:auto;margin-right:auto}
  .toast{bottom:28px}
 }
+
+.trow{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.trow>div{flex:1;min-width:0}
+.trow b{display:block;font-size:16px}
+.trow span{display:block;font-size:14px;color:var(--mute);line-height:1.45}
+.trow .btn{width:auto;flex:none}
 </style>
 </head><body>
 <div class="wrap" id="app"><div class="center"><h2>불러오는 중…</h2></div></div>
@@ -825,6 +831,7 @@ function editorHtml(){
     '<div class="cond" style="margin-top:8px"><label>운동 강도</label>'+rateHtml('rpe',d.rpe)+'</div>'+
     '<div class="cond"><label>회복도</label>'+rateHtml('recovery',d.recovery)+'</div>'+
     CONDS.map(function(c){return '<div class="cond"><label>'+c[1]+'</label>'+rateHtml('cond.'+c[0],d.cond[c[0]])+'</div>'}).join('')+'<div class="sub">1 낮음 · 5 높음(좋음)</div></div>';
+  h+=timerCardHtml(d);
   h+='<div class="card"><h3>통증 · 불편 부위</h3><div class="chips">'+PAIN.map(function(x){return '<button type="button" data-chip="'+x+'" aria-pressed="'+((d.pain||[]).indexOf(x)>-1)+'">'+x+'</button>'}).join('')+'</div></div>';
   h+='<div class="card"><h3>Today’s notes</h3><textarea id="f-notes" data-f="notes" placeholder="오늘 운동 느낌, 통증, 다음 목표">'+esc(d.notes)+'</textarea></div>';
   if(admin||d.coach)h+='<div class="card coach"><h3>코치 피드백</h3>'+(admin?'<textarea id="f-coach" data-f="coach" placeholder="회원에게 남길 피드백">'+esc(d.coach)+'</textarea>':'<div style="white-space:pre-wrap">'+esc(d.coach)+'</div>')+'</div>';
@@ -1133,8 +1140,10 @@ function enablePush(){
 /* ---------- 인터벌 타이머 ---------- */
 var TF=[['work','운동',5,1,3600,[20,30,40,45,60]],['rest','휴식',5,0,3600,[10,20,30,45,60]],['sets','세트',1,1,99,[3,5,6,8,10]]];
 var T={full:false,master:null,cfg:null,run:false,phase:'idle',left:0,dur:0,set:1,end:0,act:0,last:0,lastSec:-1,iv:null,ctx:null,wl:null,wstart:0};
-function tmrCfgLoad(){var d={work:30,rest:30,sets:5,manual:false,vol:3,full:true,snd:'tabata'};
-  try{var c=JSON.parse(localStorage.getItem('gb_tmr'));if(c){if(+c.work>0)d.work=+c.work;if(c.rest!=null&&!isNaN(+c.rest))d.rest=+c.rest;var n=+(c.rounds||c.sets);if(n>0)d.sets=n;d.manual=!!c.manual;if([1,2,3].indexOf(+c.vol)>-1)d.vol=+c.vol;d.full=c.full!==false}}catch(e){}return d}
+var TEX=[['pull','턱걸이'],['campus','행보드'],['campus','캠퍼스'],['core','코어'],['squat','스쿼트'],['push','푸시업'],['endur','지구력'],['etc','직접 입력']];
+function tmrName(){var c=T.cfg,x=TEX[c.ex]||TEX[0];return x[1]==='직접 입력'?((c.title||'').trim()||'인터벌 운동'):x[1]}
+function tmrCfgLoad(){var d={work:30,rest:30,sets:5,manual:false,vol:3,full:true,snd:'tabata',ex:0,title:'',log:true,v:2};
+  try{var c=JSON.parse(localStorage.getItem('gb_tmr'));if(c){if(+c.work>0)d.work=+c.work;if(c.rest!=null&&!isNaN(+c.rest))d.rest=+c.rest;var n=+(c.rounds||c.sets);if(n>0)d.sets=n;d.manual=c.v===2&&!!c.manual;if(c.ex>=0&&c.ex<TEX.length)d.ex=+c.ex;if(typeof c.title==='string')d.title=c.title.slice(0,20);d.log=c.log!==false;if([1,2,3].indexOf(+c.vol)>-1)d.vol=+c.vol;d.full=c.full!==false}}catch(e){}return d}
 T.cfg=tmrCfgLoad();T.left=T.cfg.work;
 function tmrCfgSave(){try{localStorage.setItem('gb_tmr',JSON.stringify(T.cfg))}catch(e){}}
 function fmtT(sec){sec=Math.max(0,Math.round(sec));var m=Math.floor(sec/60),r=sec%60;return m>0?m+':'+(r<10?'0'+r:r):String(r)}
@@ -1168,7 +1177,7 @@ function setPhase(ph,base){var c=T.cfg;T.phase=ph;
   T.lastSec=-1;
   if(ph==='work'){snd().start();buzz([250,80,250,80,250])}
   else if(ph==='rest'){snd().rest();buzz([200,100,200])}
-  else if(ph==='done'){snd().done();buzz([300,100,300,100,700]);tmrStop(true)}}
+  else if(ph==='done'){snd().done();buzz([300,100,300,100,700]);tmrStop(true);tmrRecord()}}
 function nextPhase(){var c=T.cfg,p=T.phase,b=(T.end===Infinity)?Date.now():T.end;
   if(p==='ready'){setPhase('work',b);return}
   if(p==='work'){
@@ -1187,17 +1196,73 @@ function tmrStart(){
   if(T.run&&tmrManual()){nextPhase();tmrPaint();return}
   if(T.run){tmrPause();return}
   audioCtx();
-  if(T.phase==='idle'||T.phase==='done'){T.runId=(T.runId||0)+1;T.set=1;T.act=0;if(T.cfg.full!==false)T.full=true;setPhase('ready',Date.now())}
+  if(T.phase==='idle'||T.phase==='done'){T.rec=null;T.runId=(T.runId||0)+1;T.set=1;T.act=0;if(T.cfg.full!==false)T.full=true;setPhase('ready',Date.now())}
   else if(tmrManual()){T.wstart=Date.now()}
   else{T.end=Date.now()+T.left*1000}
   T.run=true;T.last=Date.now();clearInterval(T.iv);T.iv=setInterval(tmrTick,100);wake();tmrPaint();repaintTabs()}
 function tmrPause(){T.run=false;clearInterval(T.iv);T.left=Math.max(0,(T.end-Date.now())/1000);unwake();tmrPaint();repaintTabs()}
-function tmrStop(done){T.run=false;clearInterval(T.iv);unwake();if(!done){T.phase='idle';T.left=T.cfg.work;T.set=1;T.full=false}tmrPaint();repaintTabs();if(pendingUpdate){pendingUpdate=false;setTimeout(applyUpdate,500)}}
+function tmrStop(done){T.run=false;clearInterval(T.iv);unwake();if(!done){T.rec=null;T.phase='idle';T.left=T.cfg.work;T.set=1;T.full=false}tmrPaint();repaintTabs();if(pendingUpdate){pendingUpdate=false;setTimeout(applyUpdate,500)}}
+/* ---------- 타이머 완료 → 오늘 내 일지에 자동 기록 ---------- */
+var TQK='gb_tpend';
+function tqLoad(){try{return JSON.parse(localStorage.getItem(TQK))||[]}catch(e){return []}}
+function tqSave(q){try{localStorage.setItem(TQK,JSON.stringify(q))}catch(e){}}
+function tmrRecord(){
+  var c=T.cfg;T.rec=null;if(c.log===false||!S.uid){tmrLogPaint();return}
+  /* 화면을 껐다 켜도 시간이 부풀지 않게, 자동 방식은 설정한 총 시간을 넘지 않게 */
+  var sec=T.act/1000;if(!c.manual)sec=Math.min(sec,tmrTotal(c));
+  if(sec<20){T.rec={short:true};tmrLogPaint();return}
+  var now=new Date(),x=TEX[c.ex]||TEX[0];
+  var r={id:'t'+now.getTime(),uid:S.uid,day:ymd(now),item:x[0],name:tmrName(),work:c.manual?null:c.work,rest:c.rest,sets:c.sets,min:Math.max(1,Math.round(sec/60)),at:pad(now.getHours())+':'+pad(now.getMinutes())};
+  T.rec={r:r,state:'saving'};tmrLogPaint();
+  var q=tqLoad();q.push(r);tqSave(q);tmrFlushLog()}
+function tmrApply(e,r,remove){
+  e.timers=e.timers||[];e.items=e.items||{};
+  var i=-1;e.timers.forEach(function(t,k){if(t.id===r.id)i=k});
+  if(remove?i<0:i>-1)return false;
+  var it=e.items[r.item]||{min:'',set:'',note:''};
+  var m=(+it.min||0)+(remove?-r.min:r.min);
+  if(remove){e.timers.splice(i,1)}else{e.timers.push({id:r.id,item:r.item,name:r.name,work:r.work,rest:r.rest,sets:r.sets,min:r.min,at:r.at})}
+  if(m>0){it.min=String(m);e.items[r.item]=it}else delete e.items[r.item];
+  var c=calcDay(e,r.day);e.minutes=c.min||'';e.kcal=c.kcal;e.confirmedAt=null;e.updatedAt=Date.now();return true}
+/* 서버의 최신 일지를 받아 합친 뒤 저장 */
+function tmrSync(r,remove){
+  flush();
+  return rpc('gb_days',{p_token:S.token,p_num:r.uid}).then(function(map){
+    map=map||{};var key=r.uid+'|'+r.day,open=!!(S.draft&&S.draftKey===key);var base=open?S.draft:map[r.day];var e=base?JSON.parse(JSON.stringify(base)):entryBlank();
+    if(viewUid()===r.uid)S.days=map;
+    if(!tmrApply(e,r,remove))return;
+    return S.store.saveDay(r.uid,r.day,e).then(function(){
+      if(viewUid()===r.uid){S.days[r.day]=e;if(S.draftKey===key){S.draft=JSON.parse(JSON.stringify(e));S.draft.rows=S.draft.rows||{};S.draft.cond=S.draft.cond||{}}}
+      if(S.isAdmin){(matrixCache[r.uid]=matrixCache[r.uid]||{})[r.day]=e}})})}
+var tqBusy=false;
+function tmrFlushLog(){
+  if(tqBusy||!S.token||!S.uid)return;
+  var r=tqLoad().filter(function(x){return x.uid===S.uid})[0];if(!r)return;
+  tqBusy=true;
+  tmrSync(r,false).then(function(){tqBusy=false;tqSave(tqLoad().filter(function(x){return x.id!==r.id}));
+    if(T.rec&&T.rec.r&&T.rec.r.id===r.id){T.rec.state='saved';tmrLogPaint()}
+    toast('오늘 일지에 '+r.name+' '+r.min+'분을 기록했어요');
+    if(S.tab!=='timer'&&!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#editor')))render(true);
+    tmrFlushLog()},
+  function(e){tqBusy=false;if(T.rec&&T.rec.r&&T.rec.r.id===r.id){T.rec.state='wait';tmrLogPaint()}
+    if(e&&e.code!=='network')fail(e)})}
+function tmrUnrecord(r){
+  tqSave(tqLoad().filter(function(x){return x.id!==r.id}));
+  return tmrSync(r,true).then(function(){toast('기록을 지웠어요');render(true)},fail)}
+window.addEventListener('online',function(){tmrFlushLog()});
+function tmrDesc(t){return (t.work?'운동 '+t.work+'초':'버튼 방식')+' · 휴식 '+t.rest+'초 · '+t.sets+'세트'}
+function tmrLogHtml(){var x=T.rec;if(!x||T.phase!=='done')return '';
+  if(x.short)return '<div class="card"><p class="sub" style="margin:0">20초 미만이라 일지에 기록하지 않았어요.</p></div>';
+  var r=x.r,t=x.state==='saved'?'오늘 일지에 기록했어요':x.state==='wait'?'인터넷이 연결되면 기록돼요':'일지에 기록하는 중…';
+  return '<div class="card"><h3>'+t+'</h3><p style="margin:0 0 4px;font-size:18px;font-weight:800">'+esc(r.name)+' · 총 '+r.min+'분</p><p class="sub" style="margin:0 0 12px">'+tmrDesc(r)+'</p><div style="display:flex;gap:8px"><button class="btn acc sm" data-act="tview" style="flex:1">일지 보기</button><button class="btn ghost sm" data-act="tundo" style="flex:1">기록 취소</button></div></div>'}
+function tmrLogPaint(){var el=document.getElementById('t-log');if(!el)return;var h=tmrLogHtml();if(el.innerHTML!==h)el.innerHTML=h}
+function timerCardHtml(d){if(!d.timers||!d.timers.length)return '';
+  return '<div class="card"><h3>타이머 기록</h3>'+d.timers.map(function(t){return '<div class="trow"><div><b>'+esc(t.name)+' · '+(+t.min)+'분</b><span>'+esc(tmrDesc(t))+' · '+esc(t.at||'')+'</span></div><button type="button" class="btn ghost sm" data-tdel="'+esc(t.id)+'">삭제</button></div>'}).join('')+'</div>'}
 function tmrLabel(){var p=T.phase;var l=p==='idle'?'준비':p==='ready'?'준비':p==='work'?'운동':p==='rest'?'휴식':'완료';
   if(!T.run&&p!=='idle'&&p!=='done')l+=' · 정지';return l}
 function tmrBig(){var p=T.phase,c=T.cfg;if(p==='idle')return fmtT(c.manual?c.rest:c.work);if(p==='done')return fmtT(T.act/1000);if(tmrManual())return fmtT((Date.now()-T.wstart)/1000);return String(fmtT(Math.ceil(Math.max(0,T.left))))}
 function tmrHint(){var p=T.phase,c=T.cfg;if(p==='idle')return '탭하여 시작';if(p==='done')return '탭하여 다시';if(p==='ready')return '곧 시작해요';if(!T.run)return '탭하여 계속';if(tmrManual())return '탭하면 운동 끝';return '세트 '+T.set+'/'+c.sets}
-function tmrSum(){var c=T.cfg,p=T.phase;if(p==='done')return '총 운동 시간 · '+c.sets+'세트 완료';return c.manual?('버튼으로 끝내기 · 휴식 '+c.rest+'초 · '+c.sets+'세트'):(c.work+'초 운동 · '+c.rest+'초 휴식 · '+c.sets+'세트')}
+function tmrSum(){var c=T.cfg,p=T.phase;if(p==='done')return tmrName()+' · '+c.sets+'세트 완료';return tmrName()+' · '+(c.manual?'버튼 방식':(c.work+'/'+c.rest+'초'))+' · '+c.sets+'세트'}
 function tmrSub(){var c=T.cfg,p=T.phase;
   if(p==='idle')return c.manual?('운동 끝나면 버튼 · 휴식 '+c.rest+'초 · '+c.sets+'세트'):(c.work+'초 운동 · '+c.rest+'초 휴식 · '+c.sets+'세트');
   if(p==='done')return '총 운동 시간';
@@ -1215,10 +1280,13 @@ function tmrPaint(){var c=document.getElementById('tmr');if(!c)return;c.setAttri
   var mb=document.getElementById('t-start');if(mb)mb.innerHTML=(T.run&&tmrManual())?IC.check:(T.run?IC.pause:IC.play);
   var dots=document.getElementById('t-dots');if(dots){var n=T.cfg.sets;if(n>14){dots.innerHTML=''}else{var h='';for(var k=1;k<=n;k++){var cls=(T.phase==='done'||k<T.set||(k===T.set&&T.phase==='rest'))?'d':(k===T.set&&(T.phase==='work'))?'c':'';h+='<i class="'+cls+'"></i>'}dots.innerHTML=h}}
   var tm=document.getElementById('t-mas');if(tm&&showMas()){var kd=T.phase==='work'?'work':(T.phase==='rest'?'rest':(T.phase==='done'?'done':'smile'));var tx0=T.phase==='idle'?'준비됐어요?':T.phase==='ready'?'곧 시작해요!':T.phase==='work'?(T.run?'힘내요! 할 수 있어요':'잠깐 쉬는 중?'):T.phase==='rest'?(T.run?'푹 쉬어요':'잠깐 멈췄어요'):'수고했어요! 최고예요';var tx=coolTx();if(tm.getAttribute('data-k')!==kd+skin()+partner()){tm.innerHTML=masSvg(kd,58);tm.setAttribute('data-k',kd+skin()+partner())}q('t-bub',tx)}
-  var lg=document.getElementById('t-log');if(lg){lg.hidden=!(T.phase==='done'&&T.act>=60000&&!S.isAdmin);q('t-logmin',Math.max(1,Math.round(T.act/60000)))}}
+  tmrLogPaint()}
 function timerCfgHtml(){var c=T.cfg;
-  var h='<div class="card"><div class="seg" role="group" aria-label="운동 끝내는 방식"><button type="button" data-tm="0" aria-pressed="'+(!c.manual)+'">시간으로</button><button type="button" data-tm="1" aria-pressed="'+(!!c.manual)+'">버튼으로</button></div>'+
-   '<p class="sub" style="margin:0 0 6px;font-size:12px">'+(c.manual?'턱걸이처럼 횟수로 하는 운동. 끝나면 버튼을 눌러 휴식을 시작해요.':'정한 시간이 되면 알람이 울리고 자동으로 넘어가요.')+'</p>';
+  var custom=(TEX[c.ex]||TEX[0])[1]==='직접 입력';
+  var h='<div class="card"><h3>운동 이름</h3><div class="ichips" style="margin:0">'+TEX.map(function(x,i){return '<button type="button" data-tex="'+i+'" aria-pressed="'+(c.ex===i)+'">'+x[1]+'</button>'}).join('')+'</div>'+(custom?'<input id="t-title" type="text" maxlength="20" placeholder="예: 버피, 줄넘기" aria-label="운동 이름 직접 입력" value="'+esc(c.title)+'" style="margin-top:10px">':'')+
+   '<label class="check" style="margin-top:14px"><input type="checkbox" data-act="tlogauto"'+(c.log!==false?' checked':'')+'>끝나면 내 일지에 자동 기록</label></div>';
+  h+='<div class="card"><div class="seg" role="group" aria-label="진행 방식"><button type="button" data-tm="0" aria-pressed="'+(!c.manual)+'">자동 진행</button><button type="button" data-tm="1" aria-pressed="'+(!!c.manual)+'">버튼으로</button></div>'+
+   '<p class="sub" style="margin:0 0 6px;font-size:12px">'+(c.manual?'턱걸이처럼 횟수로 하는 운동. 끝나면 버튼을 눌러 휴식을 시작해요.':'시작만 누르면 운동과 휴식이 마지막 세트까지 저절로 넘어가요. 화면은 켜 둔 채로 두세요.')+'</p>';
   h+=TF.filter(function(f){return !(c.manual&&f[0]==='work')}).map(function(f){var v=c[f[0]],u=f[0]==='sets'?'세트':'초';
     return '<div class="tset"><div class="hd"><span>'+f[1]+'</span><span class="st"><button type="button" data-ts="'+f[0]+':-1" aria-label="'+f[1]+' 줄이기">−</button><b>'+v+(u==='세트'?'':'<small style="font-size:12px;font-weight:600"> 초</small>')+'</b><button type="button" data-ts="'+f[0]+':1" aria-label="'+f[1]+' 늘리기">+</button></span></div>'+
       '<div class="ichips">'+f[5].map(function(q){return '<button type="button" data-tq="'+f[0]+':'+q+'" aria-pressed="'+(v===q)+'">'+q+(u==='세트'?'세트':'초')+'</button>'}).join('')+'</div></div>'}).join('')+'</div>';
@@ -1232,7 +1300,7 @@ function viewTimer(){
    '<div class="tsum" id="t-sum"></div>'+
    '<div class="tdots" id="t-dots"></div>'+
    '<div class="tbtns"><button class="tb" data-act="treset" aria-label="초기화">'+IC.reset+'</button><button class="tb main" id="t-start" data-act="tstart" aria-label="시작 또는 정지"></button><button class="tb" data-act="tskip" aria-label="건너뛰기">'+IC.skip+'</button></div><div class="tcap" id="t-cap"></div></div>'+
-   '<div class="card" id="t-log" hidden><h3>오늘 일지에 <b id="t-logmin">0</b>분 추가</h3><div class="ichips" style="margin:0"><button type="button" data-tl="pull">풀업·당기기</button><button type="button" data-tl="campus">캠퍼스·행보드</button><button type="button" data-tl="core">코어</button><button type="button" data-tl="etc">기타</button></div></div>'+
+   '<div id="t-log">'+tmrLogHtml()+'</div>'+
    '<div id="tcfg">'+timerCfgHtml()+'</div>'}
 document.addEventListener('visibilitychange',function(){if(!document.hidden&&T.run){wake();tmrTick()}});
 
@@ -1256,12 +1324,15 @@ window.addEventListener('appinstalled',function(){installEvt=null;if(S.ready)ren
 function setPath(obj,path,val){var p=path.split('.');var o=obj;for(var i=0;i<p.length-1;i++){o[p[i]]=o[p[i]]||{};o=o[p[i]]}o[p[p.length-1]]=val}
 document.addEventListener('input',function(e){
   var t=e.target;
+  if(t.id==='t-title'){T.cfg.title=t.value;tmrCfgSave();var tsm=document.getElementById('t-sum');if(tsm)tsm.textContent=tmrSum();return}
   if(t.id==='m-search'){S.msearch=t.value;var ml=document.getElementById('mlist');if(ml)ml.innerHTML=memListHtml();return}if(!S.draft||!t.closest||!t.closest('#editor'))return;
   if(t.dataset.f){S.draft[t.dataset.f]=t.type==='checkbox'?t.checked:t.value;touched()}
   else if(t.dataset.i){setPath(S.draft.items,t.dataset.i,t.value);touched()}
 });
 document.addEventListener('click',function(e){
-  var el=e.target.closest('[data-act],[data-tab],[data-date],[data-mem],[data-v],[data-chip],[data-item],[data-memday],[data-step],[data-mf],[data-qr],[data-gr],[data-ts],[data-tq],[data-tm],[data-tl],[data-sk],[data-sp],[data-sf],[data-sc],[data-tv],[data-tsn],[data-sm],[data-gl]');if(!el)return;
+  var el=e.target.closest('[data-act],[data-tab],[data-date],[data-mem],[data-v],[data-chip],[data-item],[data-memday],[data-step],[data-mf],[data-qr],[data-gr],[data-ts],[data-tq],[data-tm],[data-tl],[data-sk],[data-sp],[data-sf],[data-sc],[data-tv],[data-tsn],[data-sm],[data-gl],[data-tex],[data-tdel]');if(!el)return;
+  if(el.dataset.tex){if(tmrLocked()){toast('초기화한 뒤에 바꿀 수 있어요');return}T.cfg.ex=+el.dataset.tex;tmrCfgSave();tmrRefreshCfg();return}
+  if(el.dataset.tdel){var tid=el.dataset.tdel,du=viewUid(),dd=S.date,dr=((S.draft&&S.draft.timers)||[]).filter(function(t){return t.id===tid})[0];if(!dr)return;el.disabled=true;tmrUnrecord({id:tid,uid:du,day:dd,item:dr.item,min:+dr.min});return}
   if(el.dataset.sm){try{localStorage.setItem('gb_mas',el.dataset.sm)}catch(er){}applySkin();render(true);return}
   if(el.dataset.gl){var ng=+el.dataset.gl;try{localStorage.setItem('gb_goal',String(ng))}catch(er){}render(true);toast('주간 목표를 '+ng+'회로 정했어요');return}
   if(el.dataset.tsn){T.cfg.snd=el.dataset.tsn;tmrCfgSave();var tcs=document.getElementById('tcfg');if(tcs)tcs.innerHTML=timerCfgHtml();audioCtx();snd().start();return}
@@ -1273,7 +1344,6 @@ document.addEventListener('click',function(e){
   if(el.dataset.tm!=null&&el.dataset.tm!==''){if(tmrLocked()){toast('초기화한 뒤에 바꿀 수 있어요');return}T.cfg.manual=el.dataset.tm==='1';tmrCfgSave();tmrRefreshCfg();return}
   if(el.dataset.tq){if(tmrLocked()){toast('초기화한 뒤에 바꿀 수 있어요');return}var tqq=el.dataset.tq.split(':');T.cfg[tqq[0]]=+tqq[1];tmrCfgSave();tmrRefreshCfg();return}
   if(el.dataset.ts){if(tmrLocked()){toast('초기화한 뒤에 바꿀 수 있어요');return}var tsp=el.dataset.ts.split(':');var fd=TF.filter(function(f){return f[0]===tsp[0]})[0];var nv=(+T.cfg[tsp[0]]||0)+(+tsp[1])*fd[2];nv=Math.max(fd[3],Math.min(fd[4],nv));T.cfg[tsp[0]]=nv;tmrCfgSave();tmrRefreshCfg();return}
-  if(el.dataset.tl){var tk=el.dataset.tl;if(S.isAdmin)return;var tmin=Math.max(1,Math.round(T.act/60000));S.date=TODAY;S.draftKey='';ensureDraft();S.draft.items=S.draft.items||{};var prev=S.draft.items[tk];S.draft.items[tk]={min:String((prev?+prev.min||0:0)+tmin),set:prev?prev.set:'',note:prev?prev.note:''};touched();var itn=ITEMS.filter(function(x){return x[0]===tk})[0];toast('오늘 일지에 '+(itn?itn[1]:'운동')+' '+tmin+'분 추가했어요');var tg=document.getElementById('t-log');if(tg)tg.hidden=true;return}
   if(el.dataset.mf){S.mf=el.dataset.mf;render(true);return}
   if(el.dataset.qr){var cb=document.getElementById('c-body');if(cb){cb.value=el.dataset.qr;cb.focus()}return}
   if(el.dataset.step){ensureDraft();var sp=el.dataset.step.split(':');var itm=S.draft.items[sp[0]];if(!itm)return;var nm2=Math.max(0,(+itm.min||0)+(+sp[1]));itm.min=String(nm2);var inp=document.querySelector('[data-i="'+sp[0]+'.min"]');if(inp)inp.value=nm2;touched();return}
@@ -1299,6 +1369,9 @@ document.addEventListener('click',function(e){
   else if(a==='pushchat'||a==='pushnotice'||a==='pushsound'){var pk=a==='pushchat'?'chat':a==='pushnotice'?'notice':'sound';var pv=!(pk==='chat'?S.push.chat:S.push[pk]!==false);if(!S.push.sub)return;var pa={p_token:S.token,p_endpoint:S.push.sub.endpoint};pa['p_'+pk]=pv;rpc('gb_push_prefs',pa).then(function(){S.push[pk]=pv;paintPush();toast((pk==='chat'?'채팅 알림':pk==='notice'?'공지 알림':'알림 소리')+(pv?' 켰어요':' 껐어요'))},function(er){paintPush();fail(er)})}
   else if(a==='pushoff'){var sb=S.push.sub;var ep=sb&&sb.endpoint;Promise.resolve(sb&&sb.unsubscribe()).catch(function(){}).then(function(){return ep?rpc('gb_push_remove',{p_token:S.token,p_endpoint:ep}):null}).then(function(){S.push.on=false;S.push.sub=null;paintPush();toast('알림을 껐어요')},fail)}
   else if(a==='tstart'){tmrStart()}
+  else if(a==='tlogauto'){T.cfg.log=!(T.cfg.log!==false);tmrCfgSave();var tcl=document.getElementById('tcfg');if(tcl)tcl.innerHTML=timerCfgHtml()}
+  else if(a==='tview'){flush();S.tab=S.isAdmin?'mine':'today';S.date=TODAY;S.draftKey='';T.full=false;if(S.isAdmin){S.target='__admin';S.month=TODAY.slice(0,7);watchTarget()}else{render();window.scrollTo(0,0)}}
+  else if(a==='tundo'){if(T.rec&&T.rec.r){var ur=T.rec.r;T.rec=null;tmrLogPaint();tmrUnrecord(ur)}}
   else if(a==='tfull'){T.full=!T.full;tmrPaint()}
   else if(a==='tfullstart'){T.cfg.full=!(T.cfg.full!==false);tmrCfgSave();var tcf=document.getElementById('tcfg');if(tcf)tcf.innerHTML=timerCfgHtml()}
   else if(a==='tsound'){audioCtx();snd().tick();setTimeout(function(){snd().tick()},900);setTimeout(function(){snd().start()},1900);setTimeout(function(){snd().rest()},3400);buzz([200,80,200])}
@@ -1357,7 +1430,7 @@ function onLogin(token,sess){
   S.token=token;S.session=sess;S.isAdmin=!!sess.admin;S.uid=sess.admin?'__admin':sess.num;S.me=sess.admin?null:{name:sess.name};
   try{localStorage.setItem(TOKKEY,token)}catch(e){}
   S.target=null;S.date=TODAY;S.adate=TODAY;S.draftKey='';S.ready=true;S.chat={msgs:[],pinned:null,last:0,unread:0,loaded:false,timer:null};chatLoop();
-  var goChat=/[?&]tab=chat/.test(location.search);if(S.isAdmin){S.tab=goChat?'chat':'members';if(goChat)chatReload();render();loadAll()}else{S.tab=goChat?'chat':'today';if(goChat)chatReload();watchTarget();loadFeed()}loadPush();
+  var goChat=/[?&]tab=chat/.test(location.search);if(S.isAdmin){S.tab=goChat?'chat':'members';if(goChat)chatReload();render();loadAll()}else{S.tab=goChat?'chat':'today';if(goChat)chatReload();watchTarget();loadFeed()}loadPush();tmrFlushLog();
 }
 function forceLogout(){
   clearTimeout(S.chat.timer);
@@ -1453,7 +1526,7 @@ function applyFs(){var z=FS[fsLevel()];document.documentElement.style.zoom=Strin
 function fsBtn(){return '<button class="btn ghost sm fsb" data-act="fs" aria-label="글씨 크기 바꾸기. 지금은 '+FSN[fsLevel()]+'"><i style="font-size:13px">가</i><i style="font-size:20px">가</i><span style="margin-left:6px">글씨 크기</span></button>'}
 applyFs();
 /* ---------- 자동 업데이트: 앱을 켜거나 다시 열 때마다 새 버전 확인 ---------- */
-var APP_V='gb-v48',reloading=false,pendingUpdate=false;
+var APP_V='gb-v49',reloading=false,pendingUpdate=false;
 function applyUpdate(){if(reloading)return;if(T.run){pendingUpdate=true;return}var a=document.activeElement;
   if(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)&&S.session){pendingUpdate=true;return}
   reloading=true;try{flush()}catch(e){}toast('새 버전으로 업데이트해요');setTimeout(function(){location.reload()},700)}

@@ -660,6 +660,9 @@ html[data-skin="cute"] .gseg button[aria-pressed=true]{background:var(--accent);
 .trow b{display:block;font-size:16px}
 .trow span{display:block;font-size:14px;color:var(--mute);line-height:1.45}
 .trow .btn{width:auto;flex:none}
+.taddrow{display:flex;gap:8px;margin-top:12px;align-items:stretch}
+.taddrow input{flex:1;min-width:0;margin:0}
+.taddrow .btn{width:auto;flex:none;white-space:nowrap;padding-left:18px;padding-right:18px}
 </style>
 </head><body>
 <div class="wrap" id="app"><div class="center"><h2>불러오는 중…</h2></div></div>
@@ -1140,10 +1143,12 @@ function enablePush(){
 /* ---------- 인터벌 타이머 ---------- */
 var TF=[['work','운동',5,1,3600,[20,30,40,45,60]],['rest','휴식',5,0,3600,[10,20,30,45,60]],['sets','세트',1,1,99,[3,5,6,8,10]]];
 var T={full:false,master:null,cfg:null,run:false,phase:'idle',left:0,dur:0,set:1,end:0,act:0,last:0,lastSec:-1,iv:null,ctx:null,wl:null,wstart:0};
-var TEX=[['pull','턱걸이'],['campus','행보드'],['campus','캠퍼스'],['core','코어'],['squat','스쿼트'],['push','푸시업'],['endur','지구력'],['etc','직접 입력']];
-function tmrName(){var c=T.cfg,x=TEX[c.ex]||TEX[0];return x[1]==='직접 입력'?((c.title||'').trim()||'인터벌 운동'):x[1]}
-function tmrCfgLoad(){var d={work:30,rest:30,sets:5,manual:false,vol:3,full:true,snd:'tabata',ex:0,title:'',log:true,v:2};
-  try{var c=JSON.parse(localStorage.getItem('gb_tmr'));if(c){if(+c.work>0)d.work=+c.work;if(c.rest!=null&&!isNaN(+c.rest))d.rest=+c.rest;var n=+(c.rounds||c.sets);if(n>0)d.sets=n;d.manual=c.v===2&&!!c.manual;if(c.ex>=0&&c.ex<TEX.length)d.ex=+c.ex;if(typeof c.title==='string')d.title=c.title.slice(0,20);d.log=c.log!==false;if([1,2,3].indexOf(+c.vol)>-1)d.vol=+c.vol;d.full=c.full!==false}}catch(e){}return d}
+var TEX=[['pull','턱걸이'],['campus','행보드'],['campus','캠퍼스'],['core','코어'],['squat','스쿼트'],['push','푸시업'],['endur','지구력']];
+function tmrList(c){c=c||T.cfg;return TEX.concat((c.my||[]).map(function(n){return ['etc',n]}))}
+function tmrName(){return (tmrList()[T.cfg.ex]||TEX[0])[1]}
+function tmrAddName(){if(tmrLocked()){toast('초기화한 뒤에 바꿀 수 있어요');return}var el=document.getElementById('t-title');var n=((el&&el.value)||'').trim().slice(0,20);if(!n){toast('운동 이름을 적어 주세요');if(el)el.focus();return}var c=T.cfg,l=tmrList(),i=-1;l.forEach(function(x,k){if(x[1]===n)i=k});if(i<0){if(c.my.length>=12){toast('내 운동 이름은 12개까지예요. 안 쓰는 이름을 지워 주세요');return}c.my.push(n);i=TEX.length+c.my.length-1}c.ex=i;tmrCfgSave();tmrRefreshCfg();toast('운동 이름: '+n)}
+function tmrCfgLoad(){var d={work:30,rest:30,sets:5,manual:false,vol:3,full:true,snd:'tabata',ex:0,my:[],log:true,v:2};
+  try{var c=JSON.parse(localStorage.getItem('gb_tmr'));if(c){if(+c.work>0)d.work=+c.work;if(c.rest!=null&&!isNaN(+c.rest))d.rest=+c.rest;var n=+(c.rounds||c.sets);if(n>0)d.sets=n;d.manual=c.v===2&&!!c.manual;if(Array.isArray(c.my))d.my=c.my.filter(function(n){return typeof n==='string'&&n.trim()}).slice(0,12).map(function(n){return n.slice(0,20)});else if(typeof c.title==='string'&&c.title.trim()){d.my=[c.title.trim().slice(0,20)]}if(c.ex>=0&&c.ex<TEX.length+d.my.length)d.ex=+c.ex;d.log=c.log!==false;if([1,2,3].indexOf(+c.vol)>-1)d.vol=+c.vol;d.full=c.full!==false}}catch(e){}return d}
 T.cfg=tmrCfgLoad();T.left=T.cfg.work;
 function tmrCfgSave(){try{localStorage.setItem('gb_tmr',JSON.stringify(T.cfg))}catch(e){}}
 function fmtT(sec){sec=Math.max(0,Math.round(sec));var m=Math.floor(sec/60),r=sec%60;return m>0?m+':'+(r<10?'0'+r:r):String(r)}
@@ -1211,7 +1216,7 @@ function tmrRecord(){
   /* 화면을 껐다 켜도 시간이 부풀지 않게, 자동 방식은 설정한 총 시간을 넘지 않게 */
   var sec=T.act/1000;if(!c.manual)sec=Math.min(sec,tmrTotal(c));
   if(sec<20){T.rec={short:true};tmrLogPaint();return}
-  var now=new Date(),x=TEX[c.ex]||TEX[0];
+  var now=new Date(),x=tmrList()[c.ex]||TEX[0];
   var r={id:'t'+now.getTime(),uid:S.uid,day:ymd(now),item:x[0],name:tmrName(),work:c.manual?null:c.work,rest:c.rest,sets:c.sets,min:Math.max(1,Math.round(sec/60)),at:pad(now.getHours())+':'+pad(now.getMinutes())};
   T.rec={r:r,state:'saving'};tmrLogPaint();
   var q=tqLoad();q.push(r);tqSave(q);tmrFlushLog()}
@@ -1282,8 +1287,10 @@ function tmrPaint(){var c=document.getElementById('tmr');if(!c)return;c.setAttri
   var tm=document.getElementById('t-mas');if(tm&&showMas()){var kd=T.phase==='work'?'work':(T.phase==='rest'?'rest':(T.phase==='done'?'done':'smile'));var tx0=T.phase==='idle'?'준비됐어요?':T.phase==='ready'?'곧 시작해요!':T.phase==='work'?(T.run?'힘내요! 할 수 있어요':'잠깐 쉬는 중?'):T.phase==='rest'?(T.run?'푹 쉬어요':'잠깐 멈췄어요'):'수고했어요! 최고예요';var tx=coolTx();if(tm.getAttribute('data-k')!==kd+skin()+partner()){tm.innerHTML=masSvg(kd,58);tm.setAttribute('data-k',kd+skin()+partner())}q('t-bub',tx)}
   tmrLogPaint()}
 function timerCfgHtml(){var c=T.cfg;
-  var custom=(TEX[c.ex]||TEX[0])[1]==='직접 입력';
-  var h='<div class="card"><h3>운동 이름</h3><div class="ichips" style="margin:0">'+TEX.map(function(x,i){return '<button type="button" data-tex="'+i+'" aria-pressed="'+(c.ex===i)+'">'+x[1]+'</button>'}).join('')+'</div>'+(custom?'<input id="t-title" type="text" maxlength="20" placeholder="예: 버피, 줄넘기" aria-label="운동 이름 직접 입력" value="'+esc(c.title)+'" style="margin-top:10px">':'')+
+  var mine=c.ex>=TEX.length;
+  var h='<div class="card"><h3>운동 이름</h3><div class="ichips" style="margin:0">'+tmrList(c).map(function(x,i){return '<button type="button" data-tex="'+i+'" aria-pressed="'+(c.ex===i)+'">'+esc(x[1])+'</button>'}).join('')+'</div>'+
+   '<div class="taddrow"><input id="t-title" type="text" maxlength="20" placeholder="새 운동 이름 (예: 버피)" aria-label="새 운동 이름"><button type="button" class="btn acc sm" data-act="taddname">추가</button></div>'+
+   (mine?'<button type="button" class="btn ghost sm" data-act="tdelname" style="margin-top:8px;width:100%">선택한 이름 삭제</button>':'')+
    '<label class="check" style="margin-top:14px"><input type="checkbox" data-act="tlogauto"'+(c.log!==false?' checked':'')+'>끝나면 내 일지에 자동 기록</label></div>';
   h+='<div class="card"><div class="seg" role="group" aria-label="진행 방식"><button type="button" data-tm="0" aria-pressed="'+(!c.manual)+'">자동 진행</button><button type="button" data-tm="1" aria-pressed="'+(!!c.manual)+'">버튼으로</button></div>'+
    '<p class="sub" style="margin:0 0 6px;font-size:12px">'+(c.manual?'턱걸이처럼 횟수로 하는 운동. 끝나면 버튼을 눌러 휴식을 시작해요.':'시작만 누르면 운동과 휴식이 마지막 세트까지 저절로 넘어가요. 화면은 켜 둔 채로 두세요.')+'</p>';
@@ -1322,9 +1329,9 @@ window.addEventListener('appinstalled',function(){installEvt=null;if(S.ready)ren
 
 /* ---------- 이벤트 ---------- */
 function setPath(obj,path,val){var p=path.split('.');var o=obj;for(var i=0;i<p.length-1;i++){o[p[i]]=o[p[i]]||{};o=o[p[i]]}o[p[p.length-1]]=val}
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.isComposing&&e.target&&e.target.id==='t-title'){e.preventDefault();tmrAddName()}});
 document.addEventListener('input',function(e){
   var t=e.target;
-  if(t.id==='t-title'){T.cfg.title=t.value;tmrCfgSave();var tsm=document.getElementById('t-sum');if(tsm)tsm.textContent=tmrSum();return}
   if(t.id==='m-search'){S.msearch=t.value;var ml=document.getElementById('mlist');if(ml)ml.innerHTML=memListHtml();return}if(!S.draft||!t.closest||!t.closest('#editor'))return;
   if(t.dataset.f){S.draft[t.dataset.f]=t.type==='checkbox'?t.checked:t.value;touched()}
   else if(t.dataset.i){setPath(S.draft.items,t.dataset.i,t.value);touched()}
@@ -1369,6 +1376,8 @@ document.addEventListener('click',function(e){
   else if(a==='pushchat'||a==='pushnotice'||a==='pushsound'){var pk=a==='pushchat'?'chat':a==='pushnotice'?'notice':'sound';var pv=!(pk==='chat'?S.push.chat:S.push[pk]!==false);if(!S.push.sub)return;var pa={p_token:S.token,p_endpoint:S.push.sub.endpoint};pa['p_'+pk]=pv;rpc('gb_push_prefs',pa).then(function(){S.push[pk]=pv;paintPush();toast((pk==='chat'?'채팅 알림':pk==='notice'?'공지 알림':'알림 소리')+(pv?' 켰어요':' 껐어요'))},function(er){paintPush();fail(er)})}
   else if(a==='pushoff'){var sb=S.push.sub;var ep=sb&&sb.endpoint;Promise.resolve(sb&&sb.unsubscribe()).catch(function(){}).then(function(){return ep?rpc('gb_push_remove',{p_token:S.token,p_endpoint:ep}):null}).then(function(){S.push.on=false;S.push.sub=null;paintPush();toast('알림을 껐어요')},fail)}
   else if(a==='tstart'){tmrStart()}
+  else if(a==='taddname'){tmrAddName()}
+  else if(a==='tdelname'){if(tmrLocked()){toast('초기화한 뒤에 바꿀 수 있어요');return}var mi=T.cfg.ex-TEX.length;if(mi<0)return;var dn=T.cfg.my.splice(mi,1)[0];T.cfg.ex=0;tmrCfgSave();tmrRefreshCfg();toast(dn+' 이름을 지웠어요')}
   else if(a==='tlogauto'){T.cfg.log=!(T.cfg.log!==false);tmrCfgSave();var tcl=document.getElementById('tcfg');if(tcl)tcl.innerHTML=timerCfgHtml()}
   else if(a==='tview'){flush();S.tab=S.isAdmin?'mine':'today';S.date=TODAY;S.draftKey='';T.full=false;if(S.isAdmin){S.target='__admin';S.month=TODAY.slice(0,7);watchTarget()}else{render();window.scrollTo(0,0)}}
   else if(a==='tundo'){if(T.rec&&T.rec.r){var ur=T.rec.r;T.rec=null;tmrLogPaint();tmrUnrecord(ur)}}
@@ -1526,7 +1535,7 @@ function applyFs(){var z=FS[fsLevel()];document.documentElement.style.zoom=Strin
 function fsBtn(){return '<button class="btn ghost sm fsb" data-act="fs" aria-label="글씨 크기 바꾸기. 지금은 '+FSN[fsLevel()]+'"><i style="font-size:13px">가</i><i style="font-size:20px">가</i><span style="margin-left:6px">글씨 크기</span></button>'}
 applyFs();
 /* ---------- 자동 업데이트: 앱을 켜거나 다시 열 때마다 새 버전 확인 ---------- */
-var APP_V='gb-v49',reloading=false,pendingUpdate=false;
+var APP_V='gb-v50',reloading=false,pendingUpdate=false;
 function applyUpdate(){if(reloading)return;if(T.run){pendingUpdate=true;return}var a=document.activeElement;
   if(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName)&&S.session){pendingUpdate=true;return}
   reloading=true;try{flush()}catch(e){}toast('새 버전으로 업데이트해요');setTimeout(function(){location.reload()},700)}
